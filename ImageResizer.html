@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PDF Splitter - Split PDF into Separate Pages</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <meta name="description" content="Resize your images to exact dimensions with this online image resizer tool." />
+  <meta name="keywords" content="image resizer, resize image, resize photo, online image tool" />
+  <meta name="author" content="Your Name" />
+  <title>Image Resizer</title>
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -29,17 +31,18 @@
       padding: 2rem;
     }
 
-    input[type="file"] {
+    input[type="file"], input[type="number"] {
       padding: 0.5rem;
       margin: 1rem 0;
       border: 1px solid #ccc;
       border-radius: 5px;
+      background-color: #fff;
     }
 
     button {
       padding: 0.75rem 2rem;
       border: none;
-      background-color: #4CAF50;
+      background-color: #007bff;
       color: white;
       font-size: 1rem;
       cursor: pointer;
@@ -47,25 +50,11 @@
     }
 
     button:hover {
-      background-color: #45a049;
+      background-color: #0056b3;
     }
 
     .output-container {
       margin-top: 2rem;
-    }
-
-    .output-container a {
-      display: block;
-      margin: 10px 0;
-      padding: 10px;
-      background-color: #007bff;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-    }
-
-    .output-container a:hover {
-      background-color: #0056b3;
     }
 
     .ad-section {
@@ -78,18 +67,27 @@
       color: white;
       padding: 1rem;
     }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      margin-top: 1rem;
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>PDF Splitter Tool</h1>
-    <p>Effortlessly split your PDF into separate pages.</p>
+    <h1>Image Resizer</h1>
+    <p>Resize your images to specific dimensions easily with this tool.</p>
   </header>
 
   <div class="container">
-    <input type="file" id="pdfInput" accept="application/pdf" />
+    <input type="file" id="imageInput" accept="image/*" />
     <br />
-    <button onclick="splitPDF()">Split PDF</button>
+    <input type="number" id="widthInput" placeholder="Width (px)" />
+    <input type="number" id="heightInput" placeholder="Height (px)" />
+    <br />
+    <button onclick="resizeImage()">Resize Image</button>
 
     <div class="output-container" id="output"></div>
     
@@ -108,42 +106,61 @@
   </div>
 
   <footer>
-    <p>&copy; 2025 PDF Tools. All rights reserved.</p>
+    <p>&copy; 2025 Image Tools. All rights reserved.</p>
   </footer>
 
   <!-- Google AdSense script -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 
   <script>
-    async function splitPDF() {
-      const input = document.getElementById('pdfInput');
-      const output = document.getElementById('output');
-      output.innerHTML = '';
+    function resizeImage() {
+      const fileInput = document.getElementById('imageInput');
+      const widthInput = document.getElementById('widthInput');
+      const heightInput = document.getElementById('heightInput');
+      const outputContainer = document.getElementById('output');
 
-      if (!input.files.length) {
-        alert('Please upload a PDF file.');
+      outputContainer.innerHTML = ''; // Clear previous output
+
+      if (!fileInput.files.length) {
+        alert('Please select an image to resize.');
         return;
       }
 
-      const arrayBuffer = await input.files[0].arrayBuffer();
-      const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+      const file = fileInput.files[0];
+      const reader = new FileReader();
 
-      const totalPages = pdfDoc.getPageCount();
-      for (let i = 0; i < totalPages; i++) {
-        const newPdf = await PDFLib.PDFDocument.create();
-        const [copiedPage] = await newPdf.copyPages(pdfDoc, [i]);
-        newPdf.addPage(copiedPage);
+      reader.onload = function(event) {
+        const img = new Image();
+        img.src = event.target.result;
 
-        const pdfBytes = await newPdf.save();
-        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
 
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `page-${i + 1}.pdf`;
-        link.textContent = `Download Page ${i + 1}`;
-        output.appendChild(link);
-      }
+          const newWidth = parseInt(widthInput.value) || img.width;
+          const newHeight = parseInt(heightInput.value) || img.height;
+
+          canvas.width = newWidth;
+          canvas.height = newHeight;
+          ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+          const resizedImage = canvas.toDataURL('image/jpeg');
+
+          // Show the resized image
+          const imgElement = document.createElement('img');
+          imgElement.src = resizedImage;
+          outputContainer.appendChild(imgElement);
+
+          // Provide a download link
+          const downloadLink = document.createElement('a');
+          downloadLink.href = resizedImage;
+          downloadLink.download = 'resized-image.jpg';
+          downloadLink.textContent = 'Download Resized Image';
+          outputContainer.appendChild(downloadLink);
+        };
+      };
+
+      reader.readAsDataURL(file);
     }
   </script>
 </body>
