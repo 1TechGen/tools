@@ -1,0 +1,78 @@
+<div class="tool-card">
+    <div class="tool-header">
+        <i class="fas fa-compress-alt tool-icon"></i>
+        <h3 class="tool-title">Image Compressor</h3>
+    </div>
+    <p class="tool-description">Reduce image file size without losing quality</p>
+    <a href="/image-compressor" class="tool-link">
+        Use Tool <i class="fas fa-arrow-right link-icon"></i>
+    </a>
+</div>
+
+<style>
+    .tool-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        padding: 24px;
+        transition: all 0.3s ease;
+        max-width: 300px;
+        text-align: center;
+        border: 1px solid #f0f0f0;
+    }
+
+    .tool-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .tool-header {
+        margin-bottom: 16px;
+    }
+
+    .tool-icon {
+        font-size: 32px;
+        color: #6c5ce7;
+        margin-bottom: 12px;
+    }
+
+    .tool-title {
+        font-size: 20px;
+        color: #2d3436;
+        margin: 0;
+    }
+
+    .tool-description {
+        color: #636e72;
+        margin-bottom: 20px;
+        font-size: 15px;
+        line-height: 1.5;
+    }
+
+    .tool-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .tool-link:hover {
+        background: linear-gradient(135deg, #5d4aec, #8c7ae6);
+        box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+    }
+
+    .link-icon {
+        transition: transform 0.3s ease;
+    }
+
+    .tool-link:hover .link-icon {
+        transform: translateX(3px);
+    }
+</style>
