@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PDF Merger</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+    }
+    .file-inputs {
+      margin: 1rem 0;
+    }
+    #output-link {
+      margin-top: 1rem;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1>PDF Merger</h1>
+  <div class="file-inputs">
+    <input type="file" id="pdfFiles" accept="application/pdf" multiple />
+    <button onclick="mergePDFs()">Merge PDFs</button>
+  </div>
+  <a id="output-link" href="#" download="merged.pdf" style="display:none;">Download Merged PDF</a>
+
+  <script>
+    async function mergePDFs() {
+      const files = document.getElementById('pdfFiles').files;
+      if (files.length < 2) {
+        alert('Please select at least two PDF files.');
+        return;
+      }
+
+      const mergedPdf = await PDFLib.PDFDocument.create();
+
+      for (let file of files) {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
+        const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+        copiedPages.forEach((page) => mergedPdf.addPage(page));
+      }
+
+      const pdfBytes = await mergedPdf.save();
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const link = document.getElementById('output-link');
+      link.href = URL.createObjectURL(blob);
+      link.style.display = 'inline';
+    }
+  </script>
+</body>
+</html>
