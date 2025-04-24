@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Image Resizer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f9f9f9;
+      text-align: center;
+    }
+    input[type="number"] {
+      width: 80px;
+      margin: 0.5rem;
+    }
+    canvas {
+      display: none;
+    }
+    #downloadLink {
+      margin-top: 1rem;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Image Resizer</h1>
+  <input type="file" id="imageInput" accept="image/*" />
+  <br><br>
+  <label>Width: <input type="number" id="widthInput" /></label>
+  <label>Height: <input type="number" id="heightInput" /></label>
+  <br><br>
+  <button onclick="resizeImage()">Resize</button>
+  <br><br>
+  <canvas id="canvas"></canvas>
+  <a id="downloadLink" download="resized-image.png">Download Resized Image</a>
+
+  <script>
+    function resizeImage() {
+      const fileInput = document.getElementById('imageInput');
+      const width = parseInt(document.getElementById('widthInput').value);
+      const height = parseInt(document.getElementById('heightInput').value);
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+
+      if (!fileInput.files.length || !width || !height) {
+        alert('Please select an image and enter valid dimensions.');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+          const resizedImageURL = canvas.toDataURL('image/png');
+          const downloadLink = document.getElementById('downloadLink');
+          downloadLink.href = resizedImageURL;
+          downloadLink.style.display = 'inline-block';
+        };
+        img.src = e.target.result;
+      };
+
+      reader.readAsDataURL(file);
+    }
+  </script>
+</body>
+</html>
