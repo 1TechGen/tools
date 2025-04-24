@@ -3,61 +3,164 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Split your multi-page PDF into individual pages with this online tool." />
+  <meta name="keywords" content="pdf splitter, split pdf, online pdf tool, free pdf splitter" />
+  <meta name="author" content="Your Name" />
   <title>PDF Splitter</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 2rem;
-      background: #f9f9f9;
+      font-family: 'Arial', sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 0;
       text-align: center;
     }
-    input[type=file] {
-      margin-bottom: 1rem;
+
+    header {
+      background-color: #2a3d66;
+      color: white;
+      padding: 2rem;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+
+    .container {
+      padding: 2rem;
+    }
+
+    input[type="file"] {
+      padding: 0.5rem;
+      margin: 1rem 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #fff;
+    }
+
+    button {
+      padding: 0.75rem 2rem;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .output-container {
+      margin-top: 2rem;
+    }
+
+    .ad-section {
+      margin: 3rem 0;
+      text-align: center;
+    }
+
+    footer {
+      background-color: #2a3d66;
+      color: white;
+      padding: 1rem;
     }
   </style>
 </head>
 <body>
-  <h1>PDF Splitter</h1>
-  <p>Split each page of your PDF into separate files</p>
-  <input type="file" id="pdfInput" accept="application/pdf" />
-  <br />
-  <button onclick="splitPDF()">Split PDF</button>
-  <div id="output" style="margin-top:2rem;"></div>
+  <header>
+    <h1>PDF Splitter</h1>
+    <p>Split your multi-page PDF into individual PDF files.</p>
+  </header>
+
+  <div class="container">
+    <input type="file" id="pdfInput" accept=".pdf" />
+    <br />
+    <button onclick="splitPDF()">Split PDF</button>
+
+    <div class="output-container" id="output"></div>
+    
+    <!-- Google AdSense Placeholder -->
+    <div class="ad-section">
+      <ins class="adsbygoogle"
+           style="display:block; margin: 2rem auto;"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="1234567890"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 PDF Tools. All rights reserved.</p>
+  </footer>
+
+  <!-- Google AdSense script -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+
+  <!-- Include PDF.js library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 
   <script>
-    async function splitPDF() {
+    function splitPDF() {
       const input = document.getElementById('pdfInput');
       const output = document.getElementById('output');
-      output.innerHTML = '';
+      output.innerHTML = ''; // Clear previous output
 
       if (!input.files.length) {
-        alert('Please upload a PDF file.');
+        alert('Please select a PDF file.');
         return;
       }
 
-      const arrayBuffer = await input.files[0].arrayBuffer();
-      const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+      const file = input.files[0];
+      const fileReader = new FileReader();
 
-      const totalPages = pdfDoc.getPageCount();
-      for (let i = 0; i < totalPages; i++) {
-        const newPdf = await PDFLib.PDFDocument.create();
-        const [copiedPage] = await newPdf.copyPages(pdfDoc, [i]);
-        newPdf.addPage(copiedPage);
+      fileReader.onload = function(event) {
+        const pdfData = new Uint8Array(event.target.result);
 
-        const pdfBytes = await newPdf.save();
-        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
+        // Using pdf.js to parse the PDF
+        pdfjsLib.getDocument(pdfData).promise.then(function(pdf) {
+          const numPages = pdf.numPages;
 
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `page-${i + 1}.pdf`;
-        link.textContent = `Download Page ${i + 1}`;
-        link.style.display = 'block';
-        link.style.margin = '10px 0';
+          for (let i = 1; i <= numPages; i++) {
+            // Extract each page and create a new PDF
+            pdf.getPage(i).then(function(page) {
+              const scale = 1.5; // Adjust the scale for better resolution
+              const viewport = page.getViewport({ scale: scale });
 
-        output.appendChild(link);
-      }
+              const canvas = document.createElement('canvas');
+              const context = canvas.getContext('2d');
+              canvas.height = viewport.height;
+              canvas.width = viewport.width;
+
+              page.render({
+                canvasContext: context,
+                viewport: viewport
+              }).promise.then(function() {
+                // Create a new PDF document for each page
+                const doc = new jsPDF();
+                const imgData = canvas.toDataURL('image/jpeg');
+                doc.addImage(imgData, 'JPEG', 10, 10, viewport.width, viewport.height);
+                
+                // Create a download link for each page
+                const link = document.createElement('a');
+                link.href = doc.output('bloburl');
+                link.download = 'page-' + i + '.pdf';
+                link.textContent = 'Download Page ' + i;
+                output.appendChild(link);
+                output.appendChild(document.createElement('br'));
+              });
+            });
+          }
+        });
+      };
+
+      fileReader.readAsArrayBuffer(file);
     }
   </script>
 </body>
