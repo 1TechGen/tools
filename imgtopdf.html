@@ -3,89 +3,93 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Convert images to PDF format easily with this online tool." />
-  <meta name="keywords" content="image to pdf, convert image to pdf, online tools" />
-  <meta name="author" content="Your Name" />
-  <title>Image to PDF Converter</title>
+  <title>JPG to PDF Converter</title>
+  <meta name="description" content="Convert JPG to PDF online with preview of size and resolution. Simple and fast conversion tool." />
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f9f9f9;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f7f9fb;
       margin: 0;
-      padding: 0;
-      text-align: center;
     }
-
     header {
-      background-color: #2a3d66;
+      background: linear-gradient(to right, #3a1c71, #d76d77, #ffaf7b);
       color: white;
+      text-align: center;
       padding: 2rem;
     }
-
-    header h1 {
-      margin: 0;
-      font-size: 2.5rem;
-    }
-
     .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      background: #fff;
       padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-
-    input[type="file"] {
-      padding: 0.5rem;
+    h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 0.8rem;
       margin: 1rem 0;
+      border-radius: 8px;
       border: 1px solid #ccc;
-      border-radius: 5px;
-      background-color: #fff;
     }
-
     button {
-      padding: 0.75rem 2rem;
-      border: none;
-      background-color: #007bff;
+      background-color: #3a1c71;
       color: white;
-      font-size: 1rem;
+      font-weight: bold;
       cursor: pointer;
-      border-radius: 5px;
     }
-
     button:hover {
-      background-color: #0056b3;
+      background-color: #2b155a;
     }
-
-    .output-container {
+    .preview {
+      text-align: center;
       margin-top: 2rem;
     }
-
-    .ad-section {
-      margin: 3rem 0;
-      text-align: center;
+    .preview img {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 1rem;
     }
-
-    footer {
-      background-color: #2a3d66;
-      color: white;
-      padding: 1rem;
+    .info {
+      font-size: 0.95rem;
+      color: #444;
+    }
+    .ad-section {
+      text-align: center;
+      margin: 3rem 0;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Image to PDF Converter</h1>
-    <p>Convert your images to PDF format with ease.</p>
+    <h1>JPG to PDF Converter</h1>
+    <p>Convert JPG images to PDF and preview resolution and page size.</p>
   </header>
 
   <div class="container">
-    <input type="file" id="imageInput" accept="image/*" multiple />
-    <br />
-    <button onclick="convertToPDF()">Convert to PDF</button>
+    <h2>Upload JPG Image</h2>
+    <input type="file" id="imageInput" accept="image/jpeg" />
+    <select id="pageSize">
+      <option value="A4">A4 (595 x 842 pt)</option>
+      <option value="Letter">Letter (612 x 792 pt)</option>
+      <option value="Auto">Auto (Match Image)</option>
+    </select>
+    <button onclick="generatePDF()">Convert to PDF</button>
 
-    <div class="output-container" id="output"></div>
-    
-    <!-- Google AdSense Placeholder -->
+    <div class="preview" id="previewSection" style="display:none;">
+      <img id="previewImg" />
+      <p class="info" id="previewInfo"></p>
+      <a id="downloadBtn" style="display:inline-block; margin-top:1rem; color:white; background:#3a1c71; padding:0.6rem 1.2rem; border-radius:8px; text-decoration:none;" download="converted.pdf">Download PDF</a>
+    </div>
+
     <div class="ad-section">
+      <!-- Google AdSense Placeholder -->
       <ins class="adsbygoogle"
-           style="display:block; margin: 2rem auto;"
+           style="display:block"
            data-ad-client="ca-app-pub-2273117553145364/5191897711"
            data-ad-slot="1234567890"
            data-ad-format="auto"
@@ -96,63 +100,69 @@
     </div>
   </div>
 
-  <footer>
-    <p>&copy; 2025 PDF Tools. All rights reserved.</p>
+  <footer style="text-align:center; padding:1.5rem; background:#333; color:white;">
+    &copy; 2025 Tech_Gen Tools. All rights reserved.
   </footer>
 
-  <!-- Google AdSense script -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2273117553145364"
-     crossorigin="anonymous"></script>
-
-  <!-- Include jsPDF library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
   <script>
-    function convertToPDF() {
-      const input = document.getElementById('imageInput');
-      const output = document.getElementById('output');
-      output.innerHTML = ''; // Clear previous output
+    const imageInput = document.getElementById('imageInput');
+    const previewImg = document.getElementById('previewImg');
+    const previewInfo = document.getElementById('previewInfo');
+    const previewSection = document.getElementById('previewSection');
+    const downloadBtn = document.getElementById('downloadBtn');
 
-      if (!input.files.length) {
-        alert('Please select at least one image.');
+    function getPageSize(name, imgWidth, imgHeight) {
+      switch (name) {
+        case 'A4': return [595, 842];
+        case 'Letter': return [612, 792];
+        case 'Auto': return [imgWidth, imgHeight];
+      }
+    }
+
+    async function generatePDF() {
+      const file = imageInput.files[0];
+      if (!file) {
+        alert('Please select a JPG image.');
         return;
       }
 
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      let count = 0;
+      const reader = new FileReader();
+      reader.onload = async function (e) {
+        const img = new Image();
+        img.onload = async function () {
+          const { jsPDF } = window.jspdf;
+          const pageSizeOption = document.getElementById('pageSize').value;
+          const [pdfWidth, pdfHeight] = getPageSize(pageSizeOption, img.width, img.height);
 
-      // Loop through all the selected files
-      Array.from(input.files).forEach(file => {
-        const reader = new FileReader();
+          const canvas = document.createElement('canvas');
+          canvas.width = pdfWidth;
+          canvas.height = pdfHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, pdfWidth, pdfHeight);
 
-        reader.onload = function(event) {
-          const img = new Image();
-          img.src = event.target.result;
+          const imgData = canvas.toDataURL('image/jpeg', 1.0);
+          const pdf = new jsPDF({
+            unit: 'pt',
+            format: [pdfWidth, pdfHeight]
+          });
+          pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
 
-          img.onload = function() {
-            if (count > 0) {
-              doc.addPage(); // Add a new page if not the first image
-            }
+          const pdfBlob = pdf.output('blob');
+          const pdfUrl = URL.createObjectURL(pdfBlob);
+          downloadBtn.href = pdfUrl;
 
-            doc.addImage(img, 'JPEG', 10, 10, 180, 160); // Add image to the PDF (adjust the position and size)
-
-            count++;
-
-            // If it's the last image, create the PDF download link
-            if (count === input.files.length) {
-              const pdfData = doc.output('blob');
-              const link = document.createElement('a');
-              link.href = URL.createObjectURL(pdfData);
-              link.download = 'converted-images.pdf';
-              link.textContent = 'Download PDF';
-              output.appendChild(link);
-            }
-          };
+          previewImg.src = img.src;
+          previewInfo.innerHTML = `
+            Original Image: ${img.width} x ${img.height}px<br>
+            PDF Page Size: ${Math.round(pdfWidth)} x ${Math.round(pdfHeight)}pt
+          `;
+          previewSection.style.display = 'block';
         };
-
-        reader.readAsDataURL(file);
-      });
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
     }
   </script>
 </body>
