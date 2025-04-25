@@ -3,105 +3,93 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Compress images without losing quality. Supports JPG, PNG, and WebP formats." />
-  <meta name="keywords" content="image compressor, JPG, PNG, WebP, compress images, online tools" />
-  <meta name="author" content="Your Name" />
-  <title>Image Compressor - Compress Images Without Losing Quality</title>
+  <title>Image Compressor</title>
+  <meta name="description" content="Compress images online without losing quality. Resize and optimize images easily." />
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f9f9f9;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f7f9fb;
       margin: 0;
       padding: 0;
-      text-align: center;
     }
-
     header {
-      background-color: #2a3d66;
+      background: linear-gradient(to right, #1d976c, #93f9b9);
       color: white;
       padding: 2rem;
+      text-align: center;
     }
-
-    header h1 {
-      margin: 0;
-      font-size: 2.5rem;
-    }
-
     .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      background: white;
       padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
-
-    input[type="file"] {
-      padding: 0.5rem;
-      margin: 1rem 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      background-color: #fff;
+    h2 {
+      text-align: center;
+      margin-bottom: 1rem;
     }
-
-    .progress-bar {
+    input, select, button {
       width: 100%;
-      height: 10px;
-      background-color: #ccc;
-      margin-top: 1rem;
+      padding: 0.8rem;
+      margin: 1rem 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
     }
-
-    .progress-bar div {
-      height: 100%;
-      background-color: #4CAF50;
+    button {
+      background-color: #1d976c;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
     }
-
-    .output-container {
+    button:hover {
+      background-color: #16885b;
+    }
+    .preview {
+      text-align: center;
       margin-top: 2rem;
     }
-
-    button {
-      padding: 0.75rem 2rem;
-      border: none;
-      background-color: #007bff;
-      color: white;
-      font-size: 1rem;
-      cursor: pointer;
-      border-radius: 5px;
+    .preview img {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 1rem;
     }
-
-    button:hover {
-      background-color: #0056b3;
+    .info {
+      font-size: 0.95rem;
+      color: #444;
     }
-
     .ad-section {
-      margin: 3rem 0;
       text-align: center;
-    }
-
-    footer {
-      background-color: #2a3d66;
-      color: white;
-      padding: 1rem;
+      margin: 3rem 0;
     }
   </style>
 </head>
 <body>
   <header>
     <h1>Image Compressor</h1>
-    <p>Compress your images without losing quality.</p>
+    <p>Upload, compress, and scale your images effortlessly.</p>
   </header>
 
   <div class="container">
-    <input type="file" id="imageInput" accept="image/*" />
-    <br />
+    <h2>Compress & Scale Image</h2>
+
+    <input type="file" id="imageInput" accept="image/*">
+    <label for="scaleRange">Scale Image (%)</label>
+    <input type="range" id="scaleRange" min="10" max="100" step="10" value="100">
+    <p class="info" id="scaleValue">Scale: 100%</p>
+
     <button onclick="compressImage()">Compress Image</button>
 
-    <div class="progress-bar" id="progressBar" style="display: none;">
-      <div id="progress" style="width: 0%;"></div>
+    <div class="preview" id="previewSection" style="display:none;">
+      <p class="info" id="sizeInfo"></p>
+      <img id="outputImage" />
     </div>
 
-    <div class="output-container" id="output"></div>
-
-    <!-- Google AdSense Placeholder -->
     <div class="ad-section">
+      <!-- AdSense Placeholder -->
       <ins class="adsbygoogle"
-           style="display:block; margin: 2rem auto;"
+           style="display:block"
            data-ad-client="ca-app-pub-2273117553145364/5191897711"
            data-ad-slot="1234567890"
            data-ad-format="auto"
@@ -112,65 +100,55 @@
     </div>
   </div>
 
-  <footer>
-    <p>&copy; 2025 Image Tools. All rights reserved.</p>
+  <footer style="text-align:center; padding:1.5rem; background:#333; color:white;">
+    &copy; 2025 Tech_Gen Tools. All rights reserved.
   </footer>
 
-  <!-- Google AdSense script -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2273117553145364"
-     crossorigin="anonymous"></script>
-
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
   <script>
-    function compressImage() {
-      const input = document.getElementById('imageInput');
-      const output = document.getElementById('output');
-      const progressBar = document.getElementById('progressBar');
-      const progress = document.getElementById('progress');
-      output.innerHTML = '';
-      progressBar.style.display = 'block';
-      progress.style.width = '0%';
+    const scaleRange = document.getElementById('scaleRange');
+    const scaleValue = document.getElementById('scaleValue');
+    scaleRange.addEventListener('input', () => {
+      scaleValue.textContent = `Scale: ${scaleRange.value}%`;
+    });
 
-      if (!input.files.length) {
+    function compressImage() {
+      const fileInput = document.getElementById('imageInput');
+      const scale = scaleRange.value;
+
+      if (!fileInput.files.length) {
         alert('Please select an image file.');
         return;
       }
 
-      const file = input.files[0];
+      const file = fileInput.files[0];
       const reader = new FileReader();
 
-      reader.onload = function(e) {
+      reader.onload = function (e) {
         const img = new Image();
-        img.onload = function() {
+        img.onload = function () {
           const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          canvas.width = img.width / 2;  // Compress by 50%
-          canvas.height = img.height / 2;
+          canvas.width = img.width * scale / 100;
+          canvas.height = img.height * scale / 100;
 
+          const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
           canvas.toBlob(function(blob) {
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'compressed-image.png';
-            link.textContent = 'Download Compressed Image';
-            output.appendChild(link);
-            progress.style.width = '100%';
-          }, 'image/png', 0.8);  // 0.8 is quality (80%)
+            const outputImage = document.getElementById('outputImage');
+            outputImage.src = URL.createObjectURL(blob);
 
-          // Simulate progress
-          let progressWidth = 0;
-          let interval = setInterval(function() {
-            progressWidth += 5;
-            if (progressWidth >= 100) {
-              clearInterval(interval);
-            }
-            progress.style.width = progressWidth + '%';
-          }, 100);
+            const sizeInfo = document.getElementById('sizeInfo');
+            sizeInfo.innerHTML = `
+              Original: ${(file.size / 1024).toFixed(2)} KB<br>
+              Compressed: ${(blob.size / 1024).toFixed(2)} KB
+            `;
+
+            document.getElementById('previewSection').style.display = 'block';
+          }, 'image/jpeg', 0.7); // JPEG compression
         };
         img.src = e.target.result;
       };
-
       reader.readAsDataURL(file);
     }
   </script>
