@@ -3,166 +3,144 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Resize your images to exact dimensions with this online image resizer tool." />
-  <meta name="keywords" content="image resizer, resize image, resize photo, online image tool" />
-  <meta name="author" content="Your Name" />
-  <title>Image Resizer</title>
+  <meta name="description" content="Resize your images easily online with custom dimensions. Shows original size and optimized output." />
+  <meta name="keywords" content="image resizer, resize image online, compress, resize jpg png webp" />
+  <meta name="author" content="Tech_Gen" />
+  <title>Image Resizer | Tech_Gen Tools</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f9f9f9;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f9;
       margin: 0;
       padding: 0;
+      color: #333;
+    }
+    header {
+      background: linear-gradient(to right, #667eea, #764ba2);
+      color: white;
+      padding: 2rem;
       text-align: center;
     }
-
-    header {
-      background-color: #2a3d66;
-      color: white;
-      padding: 2rem;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 2.5rem;
-    }
-
     .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      background: #fff;
       padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
     }
-
-    input[type="file"], input[type="number"] {
-      padding: 0.5rem;
-      margin: 1rem 0;
+    input, button {
+      width: 100%;
+      padding: 0.8rem;
+      margin: 0.5rem 0;
       border: 1px solid #ccc;
-      border-radius: 5px;
-      background-color: #fff;
-    }
-
-    button {
-      padding: 0.75rem 2rem;
-      border: none;
-      background-color: #007bff;
-      color: white;
+      border-radius: 8px;
       font-size: 1rem;
+    }
+    button {
+      background-color: #667eea;
+      color: white;
       cursor: pointer;
-      border-radius: 5px;
     }
-
     button:hover {
-      background-color: #0056b3;
+      background-color: #5a67d8;
     }
-
-    .output-container {
-      margin-top: 2rem;
+    .output-section {
+      margin-top: 1rem;
+      text-align: center;
     }
-
     .ad-section {
       margin: 3rem 0;
       text-align: center;
     }
-
     footer {
-      background-color: #2a3d66;
+      background: #333;
       color: white;
-      padding: 1rem;
-    }
-
-    img {
-      max-width: 100%;
-      height: auto;
-      margin-top: 1rem;
+      padding: 1.5rem;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Image Resizer</h1>
-    <p>Resize your images to specific dimensions easily with this tool.</p>
-  </header>
 
-  <div class="container">
-    <input type="file" id="imageInput" accept="image/*" />
-    <br />
-    <input type="number" id="widthInput" placeholder="Width (px)" />
-    <input type="number" id="heightInput" placeholder="Height (px)" />
-    <br />
-    <button onclick="resizeImage()">Resize Image</button>
+<header>
+  <h1>Image Resizer</h1>
+  <p>Resize your image and download it instantly</p>
+</header>
 
-    <div class="output-container" id="output"></div>
-    
-    <!-- Google AdSense Placeholder -->
-    <div class="ad-section">
-      <ins class="adsbygoogle"
-           style="display:block; margin: 2rem auto;"
-           data-ad-client="ca-app-pub-2273117553145364/5191897711"
-           data-ad-slot="1234567890"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-      <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
-    </div>
+<div class="container">
+  <input type="file" id="upload" accept="image/*">
+  <p id="originalSize"></p>
+  <input type="number" id="width" placeholder="New Width (px)">
+  <input type="number" id="height" placeholder="New Height (px)">
+  <button onclick="resizeImage()">Resize and Download</button>
+
+  <div class="output-section">
+    <canvas id="canvas" style="display:none;"></canvas>
   </div>
+</div>
 
-  <footer>
-    <p>&copy; 2025 Image Tools. All rights reserved.</p>
-  </footer>
-
-  <!-- Google AdSense script -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2273117553145364"
-     crossorigin="anonymous"></script>
-
+<div class="ad-section">
+  <!-- Google AdSense Placeholder -->
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-app-pub-2273117553145364/5191897711"
+       data-ad-slot="1234567890"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
   <script>
-    function resizeImage() {
-      const fileInput = document.getElementById('imageInput');
-      const widthInput = document.getElementById('widthInput');
-      const heightInput = document.getElementById('heightInput');
-      const outputContainer = document.getElementById('output');
-
-      outputContainer.innerHTML = ''; // Clear previous output
-
-      if (!fileInput.files.length) {
-        alert('Please select an image to resize.');
-        return;
-      }
-
-      const file = fileInput.files[0];
-      const reader = new FileReader();
-
-      reader.onload = function(event) {
-        const img = new Image();
-        img.src = event.target.result;
-
-        img.onload = function() {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-
-          const newWidth = parseInt(widthInput.value) || img.width;
-          const newHeight = parseInt(heightInput.value) || img.height;
-
-          canvas.width = newWidth;
-          canvas.height = newHeight;
-          ctx.drawImage(img, 0, 0, newWidth, newHeight);
-
-          const resizedImage = canvas.toDataURL('image/jpeg');
-
-          // Show the resized image
-          const imgElement = document.createElement('img');
-          imgElement.src = resizedImage;
-          outputContainer.appendChild(imgElement);
-
-          // Provide a download link
-          const downloadLink = document.createElement('a');
-          downloadLink.href = resizedImage;
-          downloadLink.download = 'resized-image.jpg';
-          downloadLink.textContent = 'Download Resized Image';
-          outputContainer.appendChild(downloadLink);
-        };
-      };
-
-      reader.readAsDataURL(file);
-    }
+    (adsbygoogle = window.adsbygoogle || []).push({});
   </script>
+</div>
+
+<footer>
+  &copy; 2025 Tech_Gen Tools. All rights reserved.
+</footer>
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+  let img = new Image();
+  const upload = document.getElementById('upload');
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const sizeText = document.getElementById('originalSize');
+
+  upload.addEventListener('change', function () {
+    const file = upload.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  img.onload = function () {
+    sizeText.textContent = `Original Size: ${img.width} × ${img.height}`;
+    document.getElementById('width').value = img.width;
+    document.getElementById('height').value = img.height;
+  };
+
+  function resizeImage() {
+    const newWidth = parseInt(document.getElementById('width').value);
+    const newHeight = parseInt(document.getElementById('height').value);
+    if (!newWidth || !newHeight) {
+      alert("Please enter both width and height.");
+      return;
+    }
+
+    canvas.width = newWidth;
+    canvas.height = newHeight;
+    canvas.style.display = 'block';
+    ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+    const link = document.createElement('a');
+    link.download = 'resized-image.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }
+</script>
+
 </body>
 </html>
