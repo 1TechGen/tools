@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Convert Word documents to PDF online. Fast, free and easy Word to PDF tool." />
+  <meta name="keywords" content="word to pdf, doc to pdf, docx converter, online tools" />
+  <meta name="author" content="Tech_Gen Tools" />
+  <title>Word to PDF Converter | Tech_Gen</title>
+
+  <!-- JS Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    body {
+      background: #f5f7fa;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    header {
+      background: linear-gradient(to right, #667eea, #764ba2);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+    .container {
+      max-width: 700px;
+      margin: 2rem auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 0.9rem;
+      margin-top: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    button {
+      background-color: #667eea;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #5a67d8;
+    }
+    #output {
+      display: none;
+      text-align: left;
+      margin-top: 2rem;
+    }
+    #status {
+      margin-top: 1rem;
+      color: #555;
+    }
+    .ad-section {
+      margin: 3rem 0;
+      text-align: center;
+    }
+    footer {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #777;
+      padding-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Word to PDF</h1>
+    <p>Convert your DOCX file into a downloadable PDF</p>
+  </header>
+
+  <div class="container">
+    <input type="file" id="upload" accept=".doc,.docx" />
+    <button onclick="convertToPDF()">Convert to PDF</button>
+    <div id="status"></div>
+    <div id="output"></div>
+  </div>
+
+  <div class="ad-section">
+    <!-- Google AdSense Placeholder -->
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+         data-ad-slot="1234567890"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
+
+  <footer>
+    &copy; 2025 Tech_Gen Tools. All rights reserved.
+  </footer>
+
+  <script>
+    function convertToPDF() {
+      const fileInput = document.getElementById('upload');
+      const output = document.getElementById('output');
+      const status = document.getElementById('status');
+
+      if (!fileInput.files.length) {
+        alert("Please upload a Word (.docx) file.");
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function(event) {
+        const arrayBuffer = event.target.result;
+        mammoth.convertToHtml({ arrayBuffer })
+          .then(function(result) {
+            output.innerHTML = result.value;
+            output.style.display = "block";
+            status.innerText = "✅ Converting to PDF...";
+            setTimeout(() => {
+              html2pdf().from(output).save("converted.pdf");
+              status.innerText = "✅ PDF downloaded!";
+            }, 1000);
+          })
+          .catch(function(err) {
+            status.innerText = "❌ Error converting file.";
+            console.error(err);
+          });
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
+  </script>
+
+  <!-- AdSense Script -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+</body>
+</html>
