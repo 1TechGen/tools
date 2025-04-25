@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Convert Excel to PDF easily online. Upload your XLSX file and download the PDF version instantly."/>
+  <meta name="keywords" content="excel to pdf, xlsx to pdf, spreadsheet converter, tech_gen tools"/>
+  <meta name="author" content="Tech_Gen"/>
+  <title>Excel to PDF Converter | Tech_Gen</title>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background-color: #f5f7fa;
+      color: #333;
+    }
+    header {
+      background: linear-gradient(to right, #667eea, #764ba2);
+      padding: 2rem;
+      color: white;
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+    input, button {
+      width: 100%;
+      padding: 0.9rem;
+      margin-top: 1rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      background-color: #667eea;
+      color: #fff;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #5a67d8;
+    }
+    #output {
+      margin-top: 2rem;
+      display: none;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    .ad-section {
+      margin: 3rem 0;
+      text-align: center;
+    }
+    footer {
+      text-align: center;
+      padding: 2rem;
+      background: #333;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Excel to PDF</h1>
+    <p>Convert your .xlsx file to a downloadable PDF</p>
+  </header>
+
+  <div class="container">
+    <input type="file" id="upload" accept=".xlsx"/>
+    <button onclick="convertToPDF()">Convert to PDF</button>
+    <div id="output"></div>
+  </div>
+
+  <div class="ad-section">
+    <!-- Google AdSense Placeholder -->
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+         data-ad-slot="1234567890"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
+
+  <footer>
+    &copy; 2025 Tech_Gen Tools. All rights reserved.
+  </footer>
+
+  <!-- Google AdSense JS -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+
+  <script>
+    function convertToPDF() {
+      const fileInput = document.getElementById('upload');
+      const output = document.getElementById('output');
+      output.innerHTML = '';
+      output.style.display = 'none';
+
+      if (!fileInput.files.length) {
+        alert('Please select an Excel file.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const html = XLSX.utils.sheet_to_html(worksheet);
+
+        output.innerHTML = html;
+        output.style.display = 'block';
+
+        // Delay to ensure rendering before PDF
+        setTimeout(() => {
+          html2pdf().from(output).save('converted.pdf');
+        }, 1000);
+      };
+      reader.readAsArrayBuffer(fileInput.files[0]);
+    }
+  </script>
+
+</body>
+</html>
