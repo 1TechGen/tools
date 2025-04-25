@@ -3,166 +3,187 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Split your multi-page PDF into individual pages with this online tool." />
-  <meta name="keywords" content="pdf splitter, split pdf, online pdf tool, free pdf splitter" />
-  <meta name="author" content="Your Name" />
-  <title>PDF Splitter</title>
+  <meta name="description" content="Split PDF files by page range, view pages and size. Free and online." />
+  <meta name="keywords" content="pdf splitter, split pdf, extract pdf pages, pdf editor online" />
+  <meta name="author" content="Tech_Gen" />
+  <title>PDF Splitter | Tech_Gen Tools</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f9f9f9;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f7fa;
       margin: 0;
       padding: 0;
+      color: #333;
+    }
+    header {
+      background: linear-gradient(to right, #667eea, #764ba2);
+      color: white;
+      text-align: center;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, button {
+      padding: 0.7rem;
+      margin: 0.5rem 0;
+      width: 100%;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #667eea;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #5a67d8;
+    }
+    .preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 1rem;
+      justify-content: center;
+    }
+    .page-box {
+      border: 1px solid #ccc;
+      padding: 5px;
+      border-radius: 8px;
+      background: #fafafa;
       text-align: center;
     }
-
-    header {
-      background-color: #2a3d66;
-      color: white;
-      padding: 2rem;
+    canvas {
+      width: 100px;
+      height: auto;
+      display: block;
+      margin: auto;
     }
-
-    header h1 {
-      margin: 0;
-      font-size: 2.5rem;
-    }
-
-    .container {
-      padding: 2rem;
-    }
-
-    input[type="file"] {
-      padding: 0.5rem;
-      margin: 1rem 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      background-color: #fff;
-    }
-
-    button {
-      padding: 0.75rem 2rem;
-      border: none;
-      background-color: #007bff;
-      color: white;
-      font-size: 1rem;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    .output-container {
-      margin-top: 2rem;
-    }
-
     .ad-section {
       margin: 3rem 0;
       text-align: center;
     }
-
     footer {
-      background-color: #2a3d66;
+      background: #333;
       color: white;
       padding: 1rem;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>PDF Splitter</h1>
-    <p>Split your multi-page PDF into individual PDF files.</p>
-  </header>
 
-  <div class="container">
-    <input type="file" id="pdfInput" accept=".pdf" />
-    <br />
-    <button onclick="splitPDF()">Split PDF</button>
+<header>
+  <h1>PDF Splitter</h1>
+  <p>Split specific pages from a PDF easily</p>
+</header>
 
-    <div class="output-container" id="output"></div>
-    
-    <!-- Google AdSense Placeholder -->
-    <div class="ad-section">
-      <ins class="adsbygoogle"
-           style="display:block; margin: 2rem auto;"
-           data-ad-client="ca-app-pub-2273117553145364/5191897711"
-           data-ad-slot="1234567890"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-      <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
-    </div>
-  </div>
+<div class="container">
+  <input type="file" id="pdf-upload" accept="application/pdf" />
+  <input type="text" id="range" placeholder="Enter page range (e.g. 1-3,5)" />
+  <button onclick="splitPDF()">Split PDF</button>
+  <div class="preview" id="preview"></div>
+</div>
 
-  <footer>
-    <p>&copy; 2025 PDF Tools. All rights reserved.</p>
-  </footer>
-
-  <!-- Google AdSense script -->
- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2273117553145364"
-     crossorigin="anonymous"></script>
-
-  <!-- Include PDF.js library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
-
+<div class="ad-section">
+  <!-- Google AdSense Placeholder -->
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-app-pub-2273117553145364/5191897711"
+       data-ad-slot="1234567890"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
   <script>
-    function splitPDF() {
-      const input = document.getElementById('pdfInput');
-      const output = document.getElementById('output');
-      output.innerHTML = ''; // Clear previous output
-
-      if (!input.files.length) {
-        alert('Please select a PDF file.');
-        return;
-      }
-
-      const file = input.files[0];
-      const fileReader = new FileReader();
-
-      fileReader.onload = function(event) {
-        const pdfData = new Uint8Array(event.target.result);
-
-        // Using pdf.js to parse the PDF
-        pdfjsLib.getDocument(pdfData).promise.then(function(pdf) {
-          const numPages = pdf.numPages;
-
-          for (let i = 1; i <= numPages; i++) {
-            // Extract each page and create a new PDF
-            pdf.getPage(i).then(function(page) {
-              const scale = 1.5; // Adjust the scale for better resolution
-              const viewport = page.getViewport({ scale: scale });
-
-              const canvas = document.createElement('canvas');
-              const context = canvas.getContext('2d');
-              canvas.height = viewport.height;
-              canvas.width = viewport.width;
-
-              page.render({
-                canvasContext: context,
-                viewport: viewport
-              }).promise.then(function() {
-                // Create a new PDF document for each page
-                const doc = new jsPDF();
-                const imgData = canvas.toDataURL('image/jpeg');
-                doc.addImage(imgData, 'JPEG', 10, 10, viewport.width, viewport.height);
-                
-                // Create a download link for each page
-                const link = document.createElement('a');
-                link.href = doc.output('bloburl');
-                link.download = 'page-' + i + '.pdf';
-                link.textContent = 'Download Page ' + i;
-                output.appendChild(link);
-                output.appendChild(document.createElement('br'));
-              });
-            });
-          }
-        });
-      };
-
-      fileReader.readAsArrayBuffer(file);
-    }
+    (adsbygoogle = window.adsbygoogle || []).push({});
   </script>
+</div>
+
+<footer>
+  &copy; 2025 Tech_Gen Tools. All rights reserved.
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+<script>
+  let originalPdfBytes = null;
+  let pdfDoc = null;
+
+  document.getElementById("pdf-upload").addEventListener("change", async function(e) {
+    const file = e.target.files[0];
+    if (!file || file.type !== "application/pdf") return alert("Please upload a PDF.");
+
+    const arrayBuffer = await file.arrayBuffer();
+    originalPdfBytes = arrayBuffer;
+
+    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+    pdfDoc = await loadingTask.promise;
+
+    const preview = document.getElementById("preview");
+    preview.innerHTML = '';
+
+    for (let i = 1; i <= pdfDoc.numPages; i++) {
+      const page = await pdfDoc.getPage(i);
+      const viewport = page.getViewport({ scale: 0.5 });
+      const canvas = document.createElement("canvas");
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      const context = canvas.getContext("2d");
+      await page.render({ canvasContext: context, viewport }).promise;
+
+      const div = document.createElement("div");
+      div.className = "page-box";
+      div.innerHTML = `<strong>Page ${i}</strong>`;
+      div.appendChild(canvas);
+      preview.appendChild(div);
+    }
+  });
+
+  function parseRange(rangeStr, maxPages) {
+    const ranges = rangeStr.split(",");
+    const pages = new Set();
+
+    for (let r of ranges) {
+      if (r.includes("-")) {
+        const [start, end] = r.split("-").map(Number);
+        for (let i = start; i <= end && i <= maxPages; i++) pages.add(i);
+      } else {
+        const page = Number(r);
+        if (page >= 1 && page <= maxPages) pages.add(page);
+      }
+    }
+
+    return Array.from(pages).sort((a, b) => a - b);
+  }
+
+  async function splitPDF() {
+    const rangeStr = document.getElementById("range").value.trim();
+    if (!rangeStr) return alert("Enter a page range.");
+
+    const selectedPages = parseRange(rangeStr, pdfDoc.numPages);
+    if (!selectedPages.length) return alert("No valid pages selected.");
+
+    const pdfLibDoc = await PDFLib.PDFDocument.load(originalPdfBytes);
+    const newPdf = await PDFLib.PDFDocument.create();
+    const copiedPages = await newPdf.copyPages(pdfLibDoc, selectedPages.map(p => p - 1));
+    copiedPages.forEach(p => newPdf.addPage(p));
+    const newBytes = await newPdf.save();
+
+    const blob = new Blob([newBytes], { type: 'application/pdf' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "split.pdf";
+    link.click();
+  }
+</script>
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+
 </body>
 </html>
