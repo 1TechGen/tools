@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Remove specific pages from your PDF files easily online. Free, secure, and fast." />
+  <meta name="keywords" content="PDF remover, remove pages from PDF, online PDF editor, PDF splitter" />
+  <meta name="author" content="Vishwakarmae-solution" />
+  <title>Remove Pages from PDF | Tech_Gen Online Tools</title>
+
+  <!-- PDF-LIB Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background: #f0f4f8;
+      padding: 2rem;
+      color: #333;
+    }
+    header {
+      background: linear-gradient(to right, #667eea, #764ba2);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 2rem;
+      border-radius: 10px;
+    }
+    header h1 {
+      margin-bottom: 0.5rem;
+    }
+    .tool-container {
+      background: white;
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    .tool-container input, .tool-container button {
+      margin: 1rem 0;
+      padding: 0.8rem;
+      width: 100%;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    .tool-container button {
+      background: #667eea;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .tool-container button:hover {
+      background: #5a67d8;
+    }
+    .ad-section {
+      margin: 3rem 0;
+      text-align: center;
+    }
+    footer {
+      text-align: center;
+      margin-top: 4rem;
+      color: #666;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>PDF Page Remover</h1>
+    <p>Upload your PDF and remove unwanted pages easily!</p>
+  </header>
+
+  <div class="tool-container">
+    <input type="file" id="pdf-upload" accept="application/pdf" />
+    <input type="text" id="pages-to-remove" placeholder="Enter pages to remove (e.g., 2,4,7)" />
+    <button onclick="removePages()">Remove Pages</button>
+    <a id="download-link" style="display:none; margin-top: 1rem;">Download New PDF</a>
+  </div>
+
+  <div class="ad-section">
+    <!-- Google AdSense Placeholder -->
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+         data-ad-slot="1234567890"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
+
+  <footer>
+    &copy; 2025 Tech_Gen Online Tools. All rights reserved.
+  </footer>
+
+  <!-- JS Logic -->
+  <script>
+    async function removePages() {
+      const fileInput = document.getElementById('pdf-upload');
+      const pagesInput = document.getElementById('pages-to-remove');
+      const downloadLink = document.getElementById('download-link');
+
+      if (!fileInput.files.length) {
+        alert('Please upload a PDF first.');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const arrayBuffer = await file.arrayBuffer();
+      const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+
+      const totalPages = pdfDoc.getPageCount();
+      const pagesToRemove = pagesInput.value.split(',')
+        .map(num => parseInt(num.trim()) - 1) // PDF-lib pages are 0-indexed
+        .filter(num => num >= 0 && num < totalPages);
+
+      const newPdfDoc = await PDFLib.PDFDocument.create();
+
+      for (let i = 0; i < totalPages; i++) {
+        if (!pagesToRemove.includes(i)) {
+          const [copiedPage] = await newPdfDoc.copyPages(pdfDoc, [i]);
+          newPdfDoc.addPage(copiedPage);
+        }
+      }
+
+      const newPdfBytes = await newPdfDoc.save();
+      const blob = new Blob([newPdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+
+      downloadLink.href = url;
+      downloadLink.download = "modified.pdf";
+      downloadLink.style.display = 'block';
+      downloadLink.textContent = "Download New PDF";
+    }
+  </script>
+
+  <!-- Load AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+
+</body>
+</html>
