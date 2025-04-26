@@ -1,88 +1,456 @@
-async function convertToPDF() {
-  if (!wordFileInput.files.length) {
-    alert('Please select a Word document first.');
-    return;
-  }
-
-  const file = wordFileInput.files[0];
-
-  try {
-    convertBtn.disabled = true;
-    loadingDiv.style.display = 'block';
-
-    const arrayBuffer = await file.arrayBuffer();
-
-    // Extract text from Word using mammoth.js
-    const result = await mammoth.extractRawText({ arrayBuffer });
-    const extractedText = result.value;
-
-    const { PDFDocument, rgb } = PDFLib;
-    const pdfDoc = await PDFDocument.create();
-
-    let pageWidth, pageHeight;
-    switch (pageSizeSelect.value) {
-      case 'Letter':
-        pageWidth = 612;
-        pageHeight = 792;
-        break;
-      case 'Legal':
-        pageWidth = 612;
-        pageHeight = 1008;
-        break;
-      case 'A4':
-      default:
-        pageWidth = 595;
-        pageHeight = 842;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Word to PDF Converter</title>
+  <meta name="description" content="Convert Word documents to PDF with options to select page size, orientation, fonts, and margins." />
+  <style>
+    :root {
+      --primary: #4e54c8;
+      --primary-light: #8f94fb;
+      --secondary: #333;
+      --light: #f4f6f8;
+      --white: #ffffff;
+      --gray: #cccccc;
+      --dark-gray: #555555;
     }
-
-    if (orientationSelect.value === 'landscape') {
-      [pageWidth, pageHeight] = [pageHeight, pageWidth];
+    
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--light);
+      color: var(--secondary);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
     }
-
-    const page = pdfDoc.addPage([pageWidth, pageHeight]);
-
-    const fontSize = 12;
-    const margin = 50;
-    const { height } = page.getSize();
-
-    const textLines = extractedText.split('\n');
-
-    let y = height - margin;
-
-    for (let line of textLines) {
-      if (y < margin) {
-        page = pdfDoc.addPage([pageWidth, pageHeight]);
-        y = height - margin;
+    
+    header {
+      background: linear-gradient(to right, var(--primary), var(--primary-light));
+      padding: 2rem;
+      text-align: center;
+      color: var(--white);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: var(--white);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+    }
+    
+    h1, h2 {
+      margin-bottom: 1rem;
+      color: var(--secondary);
+    }
+    
+    .upload-area {
+      border: 2px dashed var(--gray);
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .upload-area:hover {
+      border-color: var(--primary);
+      background-color: rgba(78, 84, 200, 0.05);
+    }
+    
+    #wordFile {
+      display: none;
+    }
+    
+    .controls {
+      margin: 1.5rem 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    
+    .control-group {
+      margin-bottom: 1rem;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--secondary);
+    }
+    
+    select, input {
+      width: 100%;
+      padding: 0.8rem;
+      border-radius: 8px;
+      border: 1px solid var(--gray);
+      background-color: var(--white);
+    }
+    
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+    
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    
+    button {
+      width: 100%;
+      padding: 1rem;
+      background-color: var(--primary);
+      color: var(--white);
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      grid-column: span 2;
+    }
+    
+    button:hover {
+      background-color: #4346a5;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    button:disabled {
+      background-color: var(--gray);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .preview-box {
+      padding: 1.5rem;
+      border: 2px dashed var(--gray);
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      text-align: center;
+      background-color: var(--light);
+    }
+    
+    .file-info {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    
+    .ad-section {
+      margin: 3rem 0;
+      text-align: center;
+      padding: 1rem;
+      background-color: var(--light);
+      border-radius: 8px;
+    }
+    
+    footer {
+      text-align: center;
+      padding: 2rem;
+      background-color: var(--secondary);
+      color: var(--white);
+    }
+    
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 1rem 0;
+    }
+    
+    .loading-spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top: 4px solid var(--primary);
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        margin: 1rem;
+        padding: 1.5rem;
       }
-
-      page.drawText(line, {
-        x: margin,
-        y: y,
-        size: fontSize,
-        color: rgb(0, 0, 0),
-        maxWidth: pageWidth - 2 * margin,
-      });
-
-      y -= fontSize + 6; // Line spacing
+      
+      .controls {
+        grid-template-columns: 1fr;
+      }
+      
+      button {
+        grid-column: span 1;
+      }
+      
+      header {
+        padding: 1.5rem;
+      }
     }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Word to PDF Converter</h1>
+    <p>Convert your Word documents to PDF with custom settings</p>
+  </header>
 
-    const pdfBytes = await pdfDoc.save();
+  <div class="container">
+    <h2>Convert Your Document</h2>
+    
+    <div class="upload-area" onclick="document.getElementById('wordFile').click()">
+      <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+      <h3>Upload Word File</h3>
+      <p>Click to browse or drag and drop your .doc or .docx file</p>
+      <input type="file" id="wordFile" accept=".doc,.docx" />
+    </div>
+    
+    <div class="controls">
+      <div class="control-group">
+        <label for="pageSize">Page Size:</label>
+        <select id="pageSize">
+          <option value="A4">A4 (210 × 297 mm)</option>
+          <option value="Letter">Letter (8.5 × 11 in)</option>
+          <option value="Legal">Legal (8.5 × 14 in)</option>
+        </select>
+      </div>
+      
+      <div class="control-group">
+        <label for="orientation">Orientation:</label>
+        <select id="orientation">
+          <option value="portrait">Portrait</option>
+          <option value="landscape">Landscape</option>
+        </select>
+      </div>
+      
+      <div class="control-group">
+        <label for="fontFamily">Font Family:</label>
+        <select id="fontFamily">
+          <option value="helvetica">Helvetica</option>
+          <option value="times">Times New Roman</option>
+          <option value="courier">Courier</option>
+          <option value="arial">Arial</option>
+        </select>
+      </div>
+      
+      <div class="control-group">
+        <label for="fontSize">Font Size (pt):</label>
+        <input type="number" id="fontSize" min="8" max="72" value="12" step="0.5">
+      </div>
+      
+      <div class="control-group">
+        <label for="marginTop">Top Margin (mm):</label>
+        <input type="number" id="marginTop" min="5" max="50" value="20">
+      </div>
+      
+      <div class="control-group">
+        <label for="marginBottom">Bottom Margin (mm):</label>
+        <input type="number" id="marginBottom" min="5" max="50" value="20">
+      </div>
+      
+      <div class="control-group">
+        <label for="marginLeft">Left Margin (mm):</label>
+        <input type="number" id="marginLeft" min="5" max="50" value="20">
+      </div>
+      
+      <div class="control-group">
+        <label for="marginRight">Right Margin (mm):</label>
+        <input type="number" id="marginRight" min="5" max="50" value="20">
+      </div>
+    </div>
+    
+    <div class="preview-box" id="preview">
+      <div class="file-info" id="fileName">No file selected</div>
+      <div id="previewText">Page Size: A4 (210 × 297 mm)<br>Orientation: Portrait<br>Font: Helvetica 12pt<br>Margins: 20mm all sides</div>
+    </div>
+    
+    <div class="loading" id="loading">
+      <div class="loading-spinner"></div>
+      <p>Converting your document...</p>
+    </div>
+    
+    <button id="convertBtn" onclick="convertToPDF()" disabled>Convert to PDF</button>
 
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = file.name.replace(/\.[^/.]+$/, '') + '.pdf';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    <div class="ad-section">
+      <!-- Google AdSense Ad Unit -->
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-app-pub-2273117553145364/5191897711"
+           data-ad-slot="5191897711"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+  </div>
 
-  } catch (error) {
-    console.error('Conversion error:', error);
-    alert('Error converting document: ' + error.message);
-  } finally {
-    loadingDiv.style.display = 'none';
-    convertBtn.disabled = false;
-  }
-}
+  <footer>
+    &copy; 2025 Tech_Gen Tools. All rights reserved.
+  </footer>
+
+  <!-- Include Font Awesome for icons -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+  
+  <!-- Include necessary libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.0/mammoth.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <script>
+    // DOM Elements
+    const wordFileInput = document.getElementById('wordFile');
+    const pageSizeSelect = document.getElementById('pageSize');
+    const orientationSelect = document.getElementById('orientation');
+    const fontFamilySelect = document.getElementById('fontFamily');
+    const fontSizeInput = document.getElementById('fontSize');
+    const marginTopInput = document.getElementById('marginTop');
+    const marginBottomInput = document.getElementById('marginBottom');
+    const marginLeftInput = document.getElementById('marginLeft');
+    const marginRightInput = document.getElementById('marginRight');
+    const previewText = document.getElementById('previewText');
+    const fileNameDisplay = document.getElementById('fileName');
+    const convertBtn = document.getElementById('convertBtn');
+    const loadingDiv = document.getElementById('loading');
+    
+    // Event Listeners
+    wordFileInput.addEventListener('change', handleFileSelect);
+    pageSizeSelect.addEventListener('change', updatePreview);
+    orientationSelect.addEventListener('change', updatePreview);
+    fontFamilySelect.addEventListener('change', updatePreview);
+    fontSizeInput.addEventListener('change', updatePreview);
+    marginTopInput.addEventListener('change', updatePreview);
+    marginBottomInput.addEventListener('change', updatePreview);
+    marginLeftInput.addEventListener('change', updatePreview);
+    marginRightInput.addEventListener('change', updatePreview);
+    
+    // Handle file selection
+    function handleFileSelect() {
+      if (wordFileInput.files.length > 0) {
+        const file = wordFileInput.files[0];
+        fileNameDisplay.textContent = `Selected: ${file.name}`;
+        convertBtn.disabled = false;
+      } else {
+        fileNameDisplay.textContent = 'No file selected';
+        convertBtn.disabled = true;
+      }
+      updatePreview();
+    }
+    
+    // Update preview information
+    function updatePreview() {
+      previewText.innerHTML = `
+        Page Size: ${pageSizeSelect.options[pageSizeSelect.selectedIndex].text}<br>
+        Orientation: ${orientationSelect.value}<br>
+        Font: ${fontFamilySelect.options[fontFamilySelect.selectedIndex].text} ${fontSizeInput.value}pt<br>
+        Margins: ${marginTopInput.value}mm (top), ${marginBottomInput.value}mm (bottom),<br>
+        ${marginLeftInput.value}mm (left), ${marginRightInput.value}mm (right)
+      `;
+    }
+    
+    // Main conversion function
+    async function convertToPDF() {
+      if (!wordFileInput.files.length) {
+        alert('Please select a Word document first.');
+        return;
+      }
+      
+      const file = wordFileInput.files[0];
+      
+      try {
+        // Show loading indicator
+        convertBtn.disabled = true;
+        loadingDiv.style.display = 'block';
+        
+        // Read the Word file
+        const arrayBuffer = await file.arrayBuffer();
+        
+        // Convert DOCX to HTML using mammoth.js
+        const result = await mammoth.extractRawText({arrayBuffer: arrayBuffer});
+        const text = result.value; // The raw text
+        
+        // Create PDF using jsPDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({
+          orientation: orientationSelect.value,
+          unit: 'mm'
+        });
+        
+        // Set page size
+        let pageSize;
+        switch(pageSizeSelect.value) {
+          case 'Letter':
+            pageSize = {width: 215.9, height: 279.4}; // 8.5 x 11 in to mm
+            break;
+          case 'Legal':
+            pageSize = {width: 215.9, height: 355.6}; // 8.5 x 14 in to mm
+            break;
+          case 'A4':
+          default:
+            pageSize = {width: 210, height: 297}; // A4 in mm
+        }
+        
+        // Adjust for landscape
+        if (orientationSelect.value === 'landscape') {
+          [pageSize.width, pageSize.height] = [pageSize.height, pageSize.width];
+        }
+        
+        // Get user settings
+        const fontFamily = fontFamilySelect.value;
+        const fontSize = parseFloat(fontSizeInput.value);
+        const marginTop = parseFloat(marginTopInput.value);
+        const marginBottom = parseFloat(marginBottomInput.value);
+        const marginLeft = parseFloat(marginLeftInput.value);
+        const marginRight = parseFloat(marginRightInput.value);
+        
+        // Set font
+        doc.setFont(fontFamily);
+        doc.setFontSize(fontSize);
+        
+        // Calculate available width and height
+        const maxWidth = pageSize.width - marginLeft - marginRight;
+        const maxHeight = pageSize.height - marginTop - marginBottom;
+        
+        // Split text into lines that fit the page width
+        const lineHeight = fontSize * 0.35; // Convert pt to mm (approximate)
+        const lines = doc.splitTextToSize(text, maxWidth);
+        
+        let y = marginTop;
+        
+        // Add each line to the PDF
+        for (let i = 0; i < lines.length; i++) {
+          if (y + lineHeight > pageSize.height - marginBottom) {
+            doc.addPage([pageSize.width, pageSize.height], orientationSelect.value);
+            y = marginTop;
+          }
+          doc.text(lines[i], marginLeft, y);
+          y += lineHeight;
+        }
+        
+        // Save the PDF
+        doc.save(file.name.replace(/\.[^/.]+$/, '') + '.pdf');
+        
+      } catch (error) {
+        console.error('Conversion error:', error);
+        alert('Error converting document: ' + error.message);
+      } finally {
+        // Hide loading indicator
+        loadingDiv.style.display = 'none';
+        convertBtn.disabled = false;
+      }
+    }
+    
+    // Initialize
+    updatePreview();
+  </script>
+</body>
+</html>
