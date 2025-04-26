@@ -20,6 +20,8 @@
     .merge-controls select, .merge-controls button { padding: 0.5rem; font-size: 1rem; margin: 0.5rem; }
     .ad-section { margin: 3rem 0; text-align: center; }
     footer { text-align: center; padding: 1.5rem; background: #333; color: white; }
+    .quality-options { margin: 1rem 0; }
+    .quality-options label { margin-right: 1rem; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
@@ -35,6 +37,16 @@
     <div class="uploader" id="drop-zone">
       <p>Click or Drag PDF files here to upload</p>
       <input type="file" id="file-input" accept="application/pdf" multiple hidden />
+    </div>
+
+    <div class="quality-options">
+      <label>Output Quality:</label>
+      <input type="radio" id="quality-high" name="quality" value="high" checked>
+      <label for="quality-high">High</label>
+      <input type="radio" id="quality-medium" name="quality" value="medium">
+      <label for="quality-medium">Medium</label>
+      <input type="radio" id="quality-low" name="quality" value="low">
+      <label for="quality-low">Low</label>
     </div>
 
     <div class="preview-container" id="preview-container"></div>
@@ -87,41 +99,63 @@
 
     async function handleFiles(files) {
       for (let file of files) {
-        const arrayBuffer = await file.arrayBuffer();
-        const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer, disableWorker: true });
-        const pdf = await loadingTask.promise;
-        pdfDocs.push({ file, pdf });
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+          const pdf = await loadingTask.promise;
+          pdfDocs.push({ file, pdf });
 
-        for (let i = 0; i < pdf.numPages; i++) {
-          const page = await pdf.getPage(i + 1);
-          const viewport = page.getViewport({ scale: 0.5 });
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
-          canvas.height = viewport.height;
-          canvas.width = viewport.width;
+          for (let i = 0; i < pdf.numPages; i++) {
+            const page = await pdf.getPage(i + 1);
+            const viewport = page.getViewport({ scale: 1.0 }); // Increased scale for better quality
+            
+            // Create canvas with higher resolution
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            
+            // Set display size
+            const displayScale = 0.5;
+            canvas.style.width = (viewport.width * displayScale) + 'px';
+            canvas.style.height = (viewport.height * displayScale) + 'px';
+            
+            // Set actual size for rendering (higher resolution)
+            const outputScale = window.devicePixelRatio || 1;
+            canvas.width = Math.floor(viewport.width * outputScale);
+            canvas.height = Math.floor(viewport.height * outputScale);
+            
+            // Scale the context to ensure crisp rendering
+            context.scale(outputScale, outputScale);
+            
+            const renderContext = {
+              canvasContext: context,
+              viewport: viewport
+            };
+            
+            await page.render(renderContext).promise;
 
-          const renderContext = { canvasContext: context, viewport: viewport };
-          await page.render(renderContext).promise;
+            const preview = document.createElement('div');
+            preview.className = 'page-preview';
+            preview.draggable = true;
+            preview.appendChild(canvas);
 
-          const preview = document.createElement('div');
-          preview.className = 'page-preview';
-          preview.draggable = true;
-          preview.appendChild(canvas);
+            const controls = document.createElement('div');
+            controls.className = 'controls';
 
-          const controls = document.createElement('div');
-          controls.className = 'controls';
+            const rotateBtn = document.createElement('button');
+            rotateBtn.textContent = '⟳';
+            rotateBtn.onclick = () => {
+              const angle = parseInt(canvas.dataset.angle || '0') + 90;
+              canvas.style.transform = `rotate(${angle}deg)`;
+              canvas.dataset.angle = angle % 360;
+            };
 
-          const rotateBtn = document.createElement('button');
-          rotateBtn.textContent = '⟳';
-          rotateBtn.onclick = () => {
-            const angle = parseInt(canvas.dataset.angle || '0') + 90;
-            canvas.style.transform = `rotate(${angle}deg)`;
-            canvas.dataset.angle = angle % 360;
-          };
-
-          controls.appendChild(rotateBtn);
-          preview.appendChild(controls);
-          previewContainer.appendChild(preview);
+            controls.appendChild(rotateBtn);
+            preview.appendChild(controls);
+            previewContainer.appendChild(preview);
+          }
+        } catch (error) {
+          console.error('Error processing file:', error);
+          alert(`Error processing ${file.name}: ${error.message}`);
         }
       }
       enableDragAndDrop();
@@ -148,64 +182,98 @@
     }
 
     async function generateMergedPDFBlob() {
-  const { PDFDocument, degrees } = PDFLib;
-  const mergedPdf = await PDFDocument.create();
+      const { PDFDocument, rgb } = PDFLib;
+      const mergedPdf = await PDFDocument.create();
 
-  const sizeMap = {
-    A4: [595.28, 841.89],
-    LETTER: [612, 792]
-  };
+      const sizeMap = {
+        A4: [595.28, 841.89],
+        LETTER: [612, 792]
+      };
 
-  const pageSize = document.getElementById('page-size').value;
-  const orientation = document.getElementById('orientation').value;
-  let [w, h] = sizeMap[pageSize];
-  if (orientation === 'landscape') [w, h] = [h, w];
+      const pageSize = document.getElementById('page-size').value;
+      const orientation = document.getElementById('orientation').value;
+      let [w, h] = sizeMap[pageSize];
+      if (orientation === 'landscape') [w, h] = [h, w];
 
-  const previewPages = previewContainer.querySelectorAll('.page-preview');
-  
-  for (let preview of previewPages) {
-    const pageIndex = parseInt(preview.dataset.pageIndex);
-    const pdfIndex = parseInt(preview.dataset.pdfIndex);
-    const rotation = parseInt(preview.dataset.rotation || '0');
+      // Get selected quality
+      const quality = document.querySelector('input[name="quality"]:checked').value;
+      let imageQuality = 1.0;
+      if (quality === 'medium') imageQuality = 0.8;
+      if (quality === 'low') imageQuality = 0.6;
 
-    const originalPdf = pdfDocs[pdfIndex];
-    const copiedPdf = await PDFLib.PDFDocument.load(await originalPdf.file.arrayBuffer());
-    const [copiedPage] = await mergedPdf.copyPages(copiedPdf, [pageIndex]);
-    
-    // Set custom page size
-    const newPage = mergedPdf.addPage([w, h]);
+      const previewPages = previewContainer.querySelectorAll('.page-preview canvas');
+      for (let canvas of previewPages) {
+        try {
+          const angle = parseInt(canvas.dataset.angle || '0');
+          
+          // Create a temporary canvas for quality adjustments
+          const tempCanvas = document.createElement('canvas');
+          const tempCtx = tempCanvas.getContext('2d');
+          
+          // Set dimensions based on quality
+          tempCanvas.width = canvas.width * imageQuality;
+          tempCanvas.height = canvas.height * imageQuality;
+          
+          // Draw with scaling for quality adjustment
+          tempCtx.drawImage(canvas, 0, 0, tempCanvas.width, tempCanvas.height);
+          
+          // Convert to image data URL with quality setting
+          const imageData = tempCanvas.toDataURL("image/jpeg", imageQuality);
+          const imageBytes = await fetch(imageData).then(res => res.arrayBuffer());
+          
+          // Embed the image in PDF
+          let image;
+          if (imageData.startsWith('data:image/jpeg')) {
+            image = await mergedPdf.embedJpg(imageBytes);
+          } else {
+            image = await mergedPdf.embedPng(imageBytes);
+          }
+          
+          const page = mergedPdf.addPage([w, h]);
+          const { width, height } = image.scaleToFit(w, h);
+          const x = (w - width) / 2;
+          const y = (h - height) / 2;
+          
+          page.drawImage(image, { 
+            x, 
+            y, 
+            width, 
+            height, 
+            rotate: PDFLib.degrees(angle || 0),
+            opacity: 1.0
+          });
+        } catch (error) {
+          console.error('Error adding page:', error);
+        }
+      }
 
-    const { width, height } = copiedPage.getSize();
-    const scale = Math.min(w / width, h / height);
-    const scaledWidth = width * scale;
-    const scaledHeight = height * scale;
-    const x = (w - scaledWidth) / 2;
-    const y = (h - scaledHeight) / 2;
+      return new Blob([await mergedPdf.save()], { type: 'application/pdf' });
+    }
 
-    newPage.drawPage(copiedPage, {
-      x: x,
-      y: y,
-      xScale: scale,
-      yScale: scale,
-      rotate: degrees(rotation)
-    });
-  }
-
-  return new Blob([await mergedPdf.save()], { type: 'application/pdf' });
-}
-    
     async function downloadMergedPDF() {
-      const blob = await generateMergedPDFBlob();
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'merged.pdf';
-      link.click();
+      try {
+        const blob = await generateMergedPDFBlob();
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'merged_document.pdf';
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 100);
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        alert('Error generating PDF: ' + error.message);
+      }
     }
 
     async function viewMergedPDF() {
-      const blob = await generateMergedPDFBlob();
-      const url = URL.createObjectURL(blob);
-      window.open(url, '_blank');
+      try {
+        const blob = await generateMergedPDFBlob();
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        alert('Error generating PDF: ' + error.message);
+      }
     }
   </script>
 </body>
