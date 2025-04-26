@@ -5,85 +5,242 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Image Compressor</title>
   <meta name="description" content="Compress images online without losing quality. Resize and optimize images easily." />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    :root {
+      --primary: #1d976c;
+      --primary-light: #93f9b9;
+      --secondary: #2d3436;
+      --light: #f7f9fb;
+      --white: #ffffff;
+      --gray: #cccccc;
+      --dark-gray: #444444;
+    }
+    
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f7f9fb;
+      background-color: var(--light);
       margin: 0;
       padding: 0;
+      line-height: 1.6;
     }
+    
     header {
-      background: linear-gradient(to right, #1d976c, #93f9b9);
-      color: white;
+      background: linear-gradient(to right, var(--primary), var(--primary-light));
+      color: var(--white);
       padding: 2rem;
       text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
+    
     .container {
       max-width: 800px;
       margin: 2rem auto;
-      background: white;
+      background: var(--white);
       padding: 2rem;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
-    h2 {
+    
+    h1, h2 {
+      margin-bottom: 1rem;
+      color: var(--secondary);
+    }
+    
+    .upload-area {
+      border: 2px dashed var(--gray);
+      border-radius: 8px;
+      padding: 2rem;
       text-align: center;
+      margin-bottom: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .upload-area:hover {
+      border-color: var(--primary);
+      background-color: rgba(29, 151, 108, 0.05);
+    }
+    
+    .upload-area i {
+      font-size: 3rem;
+      color: var(--primary);
       margin-bottom: 1rem;
     }
-    input, select, button {
-      width: 100%;
-      padding: 0.8rem;
-      margin: 1rem 0;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+    
+    #imageInput {
+      display: none;
     }
-    button {
-      background-color: #1d976c;
-      color: white;
-      font-weight: bold;
+    
+    .controls {
+      margin: 1.5rem 0;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--secondary);
+    }
+    
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      -webkit-appearance: none;
+      background: var(--gray);
+      border-radius: 4px;
+      margin: 1rem 0;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: var(--primary);
+      border-radius: 50%;
       cursor: pointer;
     }
+    
+    button {
+      width: 100%;
+      padding: 1rem;
+      background-color: var(--primary);
+      color: var(--white);
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 1rem 0;
+    }
+    
     button:hover {
       background-color: #16885b;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
+    
+    button:disabled {
+      background-color: var(--gray);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
     .preview {
       text-align: center;
       margin-top: 2rem;
+      display: none;
     }
+    
     .preview img {
       max-width: 100%;
       height: auto;
       margin-bottom: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
+    
     .info {
       font-size: 0.95rem;
-      color: #444;
+      color: var(--dark-gray);
+      margin: 0.5rem 0;
     }
+    
+    .file-info {
+      display: flex;
+      justify-content: space-between;
+      background: var(--light);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    
+    .download-btn {
+      display: inline-block;
+      padding: 0.8rem 1.5rem;
+      background-color: var(--primary);
+      color: var(--white);
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+    }
+    
+    .download-btn:hover {
+      background-color: #16885b;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
     .ad-section {
       text-align: center;
       margin: 3rem 0;
+      padding: 1rem;
+      background: var(--light);
+      border-radius: 8px;
+    }
+    
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      background: var(--secondary);
+      color: var(--white);
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        margin: 1rem;
+        padding: 1.5rem;
+      }
+      
+      header {
+        padding: 1.5rem;
+      }
     }
   </style>
 </head>
 <body>
   <header>
     <h1>Image Compressor</h1>
-    <p>Upload, compress, and scale your images effortlessly.</p>
+    <p>Upload, compress, and download optimized images effortlessly</p>
   </header>
 
   <div class="container">
-    <h2>Compress & Scale Image</h2>
+    <div class="upload-area" onclick="document.getElementById('imageInput').click()">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <h2>Upload Your Image</h2>
+      <p>Click to browse or drag and drop your image here</p>
+      <input type="file" id="imageInput" accept="image/*">
+    </div>
 
-    <input type="file" id="imageInput" accept="image/*">
-    <label for="scaleRange">Scale Image (%)</label>
-    <input type="range" id="scaleRange" min="10" max="100" step="10" value="100">
-    <p class="info" id="scaleValue">Scale: 100%</p>
+    <div class="controls">
+      <label for="scaleRange">Image Quality: <span id="qualityValue">70%</span></label>
+      <input type="range" id="qualityRange" min="10" max="100" step="5" value="70">
+      
+      <label for="scaleRange">Image Scale: <span id="scaleValue">100%</span></label>
+      <input type="range" id="scaleRange" min="10" max="100" step="5" value="100">
+    </div>
 
-    <button onclick="compressImage()">Compress Image</button>
+    <button id="compressBtn" onclick="compressImage()" disabled>Compress Image</button>
 
-    <div class="preview" id="previewSection" style="display:none;">
-      <p class="info" id="sizeInfo"></p>
+    <div class="preview" id="previewSection">
+      <div class="file-info">
+        <div>
+          <p class="info">Original: <span id="originalSize">0 KB</span></p>
+          <p class="info">Compressed: <span id="compressedSize">0 KB</span></p>
+        </div>
+        <div>
+          <p class="info">Reduction: <span id="reductionPercent">0%</span></p>
+          <p class="info">Dimensions: <span id="dimensions">0×0</span></p>
+        </div>
+      </div>
+      
       <img id="outputImage" />
+      <a href="#" id="downloadBtn" class="download-btn" download="compressed.jpg">
+        <i class="fas fa-download"></i> Download Compressed Image
+      </a>
     </div>
 
     <div class="ad-section">
@@ -100,57 +257,116 @@
     </div>
   </div>
 
-  <footer style="text-align:center; padding:1.5rem; background:#333; color:white;">
+  <footer>
     &copy; 2025 Tech_Gen Tools. All rights reserved.
   </footer>
 
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
   <script>
+    // DOM Elements
+    const imageInput = document.getElementById('imageInput');
+    const qualityRange = document.getElementById('qualityRange');
+    const qualityValue = document.getElementById('qualityValue');
     const scaleRange = document.getElementById('scaleRange');
     const scaleValue = document.getElementById('scaleValue');
-    scaleRange.addEventListener('input', () => {
-      scaleValue.textContent = `Scale: ${scaleRange.value}%`;
-    });
-
+    const compressBtn = document.getElementById('compressBtn');
+    const previewSection = document.getElementById('previewSection');
+    const outputImage = document.getElementById('outputImage');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const originalSize = document.getElementById('originalSize');
+    const compressedSize = document.getElementById('compressedSize');
+    const reductionPercent = document.getElementById('reductionPercent');
+    const dimensions = document.getElementById('dimensions');
+    
+    // Event Listeners
+    qualityRange.addEventListener('input', updateQualityValue);
+    scaleRange.addEventListener('input', updateScaleValue);
+    imageInput.addEventListener('change', handleFileSelect);
+    
+    // Update quality value display
+    function updateQualityValue() {
+      qualityValue.textContent = `${qualityRange.value}%`;
+    }
+    
+    // Update scale value display
+    function updateScaleValue() {
+      scaleValue.textContent = `${scaleRange.value}%`;
+    }
+    
+    // Handle file selection
+    function handleFileSelect() {
+      if (imageInput.files.length) {
+        compressBtn.disabled = false;
+      }
+    }
+    
+    // Compress image function
     function compressImage() {
-      const fileInput = document.getElementById('imageInput');
-      const scale = scaleRange.value;
-
-      if (!fileInput.files.length) {
-        alert('Please select an image file.');
+      const file = imageInput.files[0];
+      const quality = qualityRange.value / 100;
+      const scale = scaleRange.value / 100;
+      
+      if (!file) {
+        alert('Please select an image file first.');
         return;
       }
-
-      const file = fileInput.files[0];
+      
       const reader = new FileReader();
-
-      reader.onload = function (e) {
+      
+      reader.onload = function(e) {
         const img = new Image();
-        img.onload = function () {
+        img.onload = function() {
+          // Calculate new dimensions
+          const newWidth = Math.floor(img.width * scale);
+          const newHeight = Math.floor(img.height * scale);
+          
+          // Create canvas
           const canvas = document.createElement('canvas');
-          canvas.width = img.width * scale / 100;
-          canvas.height = img.height * scale / 100;
-
+          canvas.width = newWidth;
+          canvas.height = newHeight;
+          
+          // Draw image on canvas
           const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
+          ctx.drawImage(img, 0, 0, newWidth, newHeight);
+          
+          // Convert to blob with specified quality
           canvas.toBlob(function(blob) {
-            const outputImage = document.getElementById('outputImage');
-            outputImage.src = URL.createObjectURL(blob);
-
-            const sizeInfo = document.getElementById('sizeInfo');
-            sizeInfo.innerHTML = `
-              Original: ${(file.size / 1024).toFixed(2)} KB<br>
-              Compressed: ${(blob.size / 1024).toFixed(2)} KB
-            `;
-
-            document.getElementById('previewSection').style.display = 'block';
-          }, 'image/jpeg', 0.7); // JPEG compression
+            // Create object URL for compressed image
+            const compressedUrl = URL.createObjectURL(blob);
+            
+            // Update preview
+            outputImage.src = compressedUrl;
+            
+            // Calculate and display file sizes
+            const originalKB = (file.size / 1024).toFixed(2);
+            const compressedKB = (blob.size / 1024).toFixed(2);
+            const reduction = ((1 - (blob.size / file.size)) * 100).toFixed(2);
+            
+            originalSize.textContent = `${originalKB} KB`;
+            compressedSize.textContent = `${compressedKB} KB`;
+            reductionPercent.textContent = `${reduction}%`;
+            dimensions.textContent = `${newWidth}×${newHeight}`;
+            
+            // Set up download button
+            downloadBtn.href = compressedUrl;
+            downloadBtn.download = `compressed_${file.name}`;
+            
+            // Show preview section
+            previewSection.style.display = 'block';
+            
+            // Scroll to preview
+            previewSection.scrollIntoView({ behavior: 'smooth' });
+            
+          }, 'image/jpeg', quality);
         };
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
     }
+    
+    // Initialize
+    updateQualityValue();
+    updateScaleValue();
   </script>
 </body>
 </html>
