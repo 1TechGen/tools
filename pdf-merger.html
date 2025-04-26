@@ -6,80 +6,22 @@
   <meta name="description" content="Merge PDFs easily with page preview, rotation, and drag-and-drop reorder. Free online PDF tool with monetization support via AdSense." />
   <title>PDF Merger Tool | Merge, Rotate, Reorder</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    body {
-      background: #f4f7fa;
-      color: #333;
-    }
-    header {
-      background: #4a90e2;
-      padding: 1.5rem;
-      color: white;
-      text-align: center;
-    }
-    .container {
-      max-width: 1000px;
-      margin: auto;
-      padding: 2rem;
-    }
-    .uploader {
-      background: white;
-      border: 2px dashed #ccc;
-      padding: 2rem;
-      text-align: center;
-      cursor: pointer;
-      margin-bottom: 2rem;
-    }
-    .preview-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      justify-content: center;
-    }
-    .page-preview {
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 1rem;
-      background: #fff;
-      position: relative;
-      cursor: move;
-    }
-    .page-preview canvas {
-      display: block;
-      margin-bottom: 0.5rem;
-      width: 120px;
-    }
-    .controls {
-      display: flex;
-      gap: 0.5rem;
-      justify-content: center;
-    }
-    .controls button {
-      padding: 0.3rem 0.6rem;
-      font-size: 0.8rem;
-      cursor: pointer;
-    }
-    .ad-section {
-      margin: 3rem 0;
-      text-align: center;
-    }
-    footer {
-      text-align: center;
-      padding: 1.5rem;
-      background: #333;
-      color: white;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background: #f4f7fa; color: #333; }
+    header { background: #4a90e2; padding: 1.5rem; color: white; text-align: center; }
+    .container { max-width: 1000px; margin: auto; padding: 2rem; }
+    .uploader { background: white; border: 2px dashed #ccc; padding: 2rem; text-align: center; cursor: pointer; margin-bottom: 2rem; }
+    .preview-container { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+    .page-preview { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; background: #fff; position: relative; cursor: move; }
+    .page-preview canvas { display: block; margin-bottom: 0.5rem; width: 120px; }
+    .controls { display: flex; gap: 0.5rem; justify-content: center; }
+    .controls button { padding: 0.3rem 0.6rem; font-size: 0.8rem; cursor: pointer; }
+    .merge-controls { text-align: center; margin: 2rem 0; }
+    .merge-controls select, .merge-controls button { padding: 0.5rem; font-size: 1rem; margin: 0.5rem; }
+    .ad-section { margin: 3rem 0; text-align: center; }
+    footer { text-align: center; padding: 1.5rem; background: #333; color: white; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-  <script>
-    // Inline worker setup to avoid importScripts error
-    pdfjsLib.GlobalWorkerOptions.workerSrc = null;
-  </script>
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 </head>
@@ -97,8 +39,22 @@
 
     <div class="preview-container" id="preview-container"></div>
 
+    <div class="merge-controls">
+      <label for="page-size">Page Size:</label>
+      <select id="page-size">
+        <option value="A4">A4</option>
+        <option value="LETTER">Letter</option>
+      </select>
+      <label for="orientation">Orientation:</label>
+      <select id="orientation">
+        <option value="portrait">Portrait</option>
+        <option value="landscape">Landscape</option>
+      </select>
+      <button onclick="downloadMergedPDF()">Download Merged PDF</button>
+      <button onclick="viewMergedPDF()">View Merged PDF</button>
+    </div>
+
     <div class="ad-section">
-      <!-- Google AdSense Placeholder -->
       <ins class="adsbygoogle"
            style="display:block"
            data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
@@ -116,24 +72,17 @@
   </footer>
 
   <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
     const previewContainer = document.getElementById('preview-container');
     let pdfDocs = [];
 
     dropZone.addEventListener('click', () => fileInput.click());
-    dropZone.addEventListener('dragover', e => {
-      e.preventDefault();
-      dropZone.style.borderColor = '#4a90e2';
-    });
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.style.borderColor = '#ccc';
-    });
-    dropZone.addEventListener('drop', async e => {
-      e.preventDefault();
-      dropZone.style.borderColor = '#ccc';
-      await handleFiles(e.dataTransfer.files);
-    });
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor = '#4a90e2'; });
+    dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = '#ccc'; });
+    dropZone.addEventListener('drop', async e => { e.preventDefault(); dropZone.style.borderColor = '#ccc'; await handleFiles(e.dataTransfer.files); });
     fileInput.addEventListener('change', async () => await handleFiles(fileInput.files));
 
     async function handleFiles(files) {
@@ -151,10 +100,7 @@
           canvas.height = viewport.height;
           canvas.width = viewport.width;
 
-          const renderContext = {
-            canvasContext: context,
-            viewport: viewport
-          };
+          const renderContext = { canvasContext: context, viewport: viewport };
           await page.render(renderContext).promise;
 
           const preview = document.createElement('div');
@@ -190,9 +136,7 @@
         }
       });
 
-      previewContainer.addEventListener('dragover', e => {
-        e.preventDefault();
-      });
+      previewContainer.addEventListener('dragover', e => { e.preventDefault(); });
 
       previewContainer.addEventListener('drop', e => {
         e.preventDefault();
@@ -201,6 +145,49 @@
           previewContainer.insertBefore(dragSrcEl, dropTarget.nextSibling);
         }
       });
+    }
+
+    async function generateMergedPDFBlob() {
+      const { PDFDocument } = PDFLib;
+      const mergedPdf = await PDFDocument.create();
+
+      const sizeMap = {
+        A4: [595.28, 841.89],
+        LETTER: [612, 792]
+      };
+
+      const pageSize = document.getElementById('page-size').value;
+      const orientation = document.getElementById('orientation').value;
+      let [w, h] = sizeMap[pageSize];
+      if (orientation === 'landscape') [w, h] = [h, w];
+
+      const previewPages = previewContainer.querySelectorAll('.page-preview canvas');
+      for (let canvas of previewPages) {
+        const angle = parseInt(canvas.dataset.angle || '0');
+        const imageBytes = canvas.toDataURL("image/png");
+        const image = await mergedPdf.embedPng(imageBytes);
+        const page = mergedPdf.addPage([w, h]);
+        const { width, height } = image.scaleToFit(w, h);
+        const x = (w - width) / 2;
+        const y = (h - height) / 2;
+        page.drawImage(image, { x, y, width, height, rotate: PDFLib.degrees(angle || 0) });
+      }
+
+      return new Blob([await mergedPdf.save()], { type: 'application/pdf' });
+    }
+
+    async function downloadMergedPDF() {
+      const blob = await generateMergedPDFBlob();
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'merged.pdf';
+      link.click();
+    }
+
+    async function viewMergedPDF() {
+      const blob = await generateMergedPDFBlob();
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
     }
   </script>
 </body>
