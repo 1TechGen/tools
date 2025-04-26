@@ -3,40 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Merge PDFs easily with preview, rotation, and reorder. Free PDF tool with AdSense support." />
-  <title>PDF Merger Tool</title>
+  <meta name="description" content="Merge PDFs easily with page preview, rotation, and drag-and-drop reorder. Free online PDF tool with monetization support via AdSense." />
+  <title>PDF Merger Tool | Merge, Rotate, Reorder</title>
   <style>
     * {
       box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, sans-serif;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     body {
-      margin: 0;
-      background: #f7f9fc;
+      background: #f4f7fa;
       color: #333;
     }
     header {
-      background: #5a67d8;
+      background: #4a90e2;
+      padding: 1.5rem;
       color: white;
       text-align: center;
-      padding: 2rem 1rem;
-    }
-    header h1 {
-      margin-bottom: 0.5rem;
     }
     .container {
-      max-width: 1100px;
+      max-width: 1000px;
       margin: auto;
-      padding: 2rem 1rem;
+      padding: 2rem;
     }
     .uploader {
-      background: #fff;
+      background: white;
       border: 2px dashed #ccc;
-      border-radius: 10px;
-      text-align: center;
       padding: 2rem;
-      margin-bottom: 2rem;
+      text-align: center;
       cursor: pointer;
+      margin-bottom: 2rem;
     }
     .preview-container {
       display: flex;
@@ -45,27 +42,25 @@
       justify-content: center;
     }
     .page-preview {
-      width: 120px;
-      background: white;
+      border: 1px solid #ccc;
       border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      padding: 0.5rem;
+      padding: 1rem;
+      background: #fff;
       position: relative;
-      text-align: center;
-      cursor: grab;
+      cursor: move;
     }
-    .page-preview img {
-      width: 100%;
-      border-radius: 4px;
+    .page-preview canvas {
+      display: block;
+      margin-bottom: 0.5rem;
+      width: 120px;
     }
     .controls {
-      margin-top: 0.5rem;
       display: flex;
+      gap: 0.5rem;
       justify-content: center;
-      gap: 0.3rem;
     }
     .controls button {
-      padding: 4px 8px;
+      padding: 0.3rem 0.6rem;
       font-size: 0.8rem;
       cursor: pointer;
     }
@@ -74,115 +69,139 @@
       text-align: center;
     }
     footer {
-      background: #2d3748;
-      color: white;
       text-align: center;
       padding: 1.5rem;
-      margin-top: 3rem;
+      background: #333;
+      color: white;
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script>
+    // Inline worker setup to avoid importScripts error
+    pdfjsLib.GlobalWorkerOptions.workerSrc = null;
+  </script>
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 </head>
 <body>
+  <header>
+    <h1>PDF Merger</h1>
+    <p>Preview pages, rotate, and reorder before merging.</p>
+  </header>
 
-<header>
-  <h1>PDF Merger Tool</h1>
-  <p>Reorder, preview & rotate PDF pages before merging</p>
-</header>
+  <div class="container">
+    <div class="uploader" id="drop-zone">
+      <p>Click or Drag PDF files here to upload</p>
+      <input type="file" id="file-input" accept="application/pdf" multiple hidden />
+    </div>
 
-<div class="container">
-  <div class="uploader" id="drop-zone">
-    <p>Click or Drag & Drop PDF files here</p>
-    <input type="file" id="file-input" accept="application/pdf" multiple hidden />
+    <div class="preview-container" id="preview-container"></div>
+
+    <div class="ad-section">
+      <!-- Google AdSense Placeholder -->
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="1234567890"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
   </div>
 
-  <div class="preview-container" id="preview-container">
-    <!-- Thumbnails go here -->
-  </div>
+  <footer>
+    <p>&copy; 2025 PDF Merger Tool by Tech_Gen. All rights reserved.</p>
+  </footer>
 
-  <div class="ad-section">
-    <!-- Google AdSense -->
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-         data-ad-slot="1234567890"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-    <script>
-      (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
-  </div>
-</div>
+  <script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const previewContainer = document.getElementById('preview-container');
+    let pdfDocs = [];
 
-<footer>
-  <p>&copy; 2025 PDF Merger by Tech_Gen. All rights reserved.</p>
-</footer>
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropZone.style.borderColor = '#4a90e2';
+    });
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.style.borderColor = '#ccc';
+    });
+    dropZone.addEventListener('drop', async e => {
+      e.preventDefault();
+      dropZone.style.borderColor = '#ccc';
+      await handleFiles(e.dataTransfer.files);
+    });
+    fileInput.addEventListener('change', async () => await handleFiles(fileInput.files));
 
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-<script>
-  const dropZone = document.getElementById('drop-zone');
-  const fileInput = document.getElementById('file-input');
-  const previewContainer = document.getElementById('preview-container');
+    async function handleFiles(files) {
+      for (let file of files) {
+        const arrayBuffer = await file.arrayBuffer();
+        const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer, disableWorker: true });
+        const pdf = await loadingTask.promise;
+        pdfDocs.push({ file, pdf });
 
-  dropZone.addEventListener('click', () => fileInput.click());
-  dropZone.addEventListener('dragover', e => {
-    e.preventDefault();
-    dropZone.style.borderColor = '#5a67d8';
-  });
-  dropZone.addEventListener('dragleave', () => {
-    dropZone.style.borderColor = '#ccc';
-  });
-  dropZone.addEventListener('drop', e => {
-    e.preventDefault();
-    dropZone.style.borderColor = '#ccc';
-    handleFiles(e.dataTransfer.files);
-  });
-  fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+        for (let i = 0; i < pdf.numPages; i++) {
+          const page = await pdf.getPage(i + 1);
+          const viewport = page.getViewport({ scale: 0.5 });
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
 
-  function handleFiles(files) {
-    for (let i = 0; i < files.length; i++) {
-      // Placeholder for preview - not real PDF pages
-      const preview = document.createElement('div');
-      preview.className = 'page-preview';
-      preview.draggable = true;
+          const renderContext = {
+            canvasContext: context,
+            viewport: viewport
+          };
+          await page.render(renderContext).promise;
 
-      const img = document.createElement('img');
-      img.src = 'https://via.placeholder.com/120x160.png?text=PDF+Page';
-      preview.appendChild(img);
+          const preview = document.createElement('div');
+          preview.className = 'page-preview';
+          preview.draggable = true;
+          preview.appendChild(canvas);
 
-      const controls = document.createElement('div');
-      controls.className = 'controls';
+          const controls = document.createElement('div');
+          controls.className = 'controls';
 
-      const rotateBtn = document.createElement('button');
-      rotateBtn.innerText = '⟳';
-      rotateBtn.onclick = () => {
-        const angle = parseInt(img.dataset.angle || '0') + 90;
-        img.style.transform = `rotate(${angle % 360}deg)`;
-        img.dataset.angle = angle % 360;
-      };
+          const rotateBtn = document.createElement('button');
+          rotateBtn.textContent = '⟳';
+          rotateBtn.onclick = () => {
+            const angle = parseInt(canvas.dataset.angle || '0') + 90;
+            canvas.style.transform = `rotate(${angle}deg)`;
+            canvas.dataset.angle = angle % 360;
+          };
 
-      controls.appendChild(rotateBtn);
-      preview.appendChild(controls);
-      previewContainer.appendChild(preview);
-
-      enableDrag();
+          controls.appendChild(rotateBtn);
+          preview.appendChild(controls);
+          previewContainer.appendChild(preview);
+        }
+      }
+      enableDragAndDrop();
     }
-  }
 
-  function enableDrag() {
-    let dragging = null;
-    const items = document.querySelectorAll('.page-preview');
-    items.forEach(item => {
-      item.addEventListener('dragstart', () => dragging = item);
-      item.addEventListener('dragover', e => e.preventDefault());
-      item.addEventListener('drop', e => {
-        e.preventDefault();
-        if (dragging && dragging !== item) {
-          previewContainer.insertBefore(dragging, item.nextSibling);
+    function enableDragAndDrop() {
+      let dragSrcEl;
+      previewContainer.addEventListener('dragstart', e => {
+        if (e.target.closest('.page-preview')) {
+          dragSrcEl = e.target.closest('.page-preview');
+          e.dataTransfer.effectAllowed = 'move';
         }
       });
-    });
-  }
-</script>
 
+      previewContainer.addEventListener('dragover', e => {
+        e.preventDefault();
+      });
+
+      previewContainer.addEventListener('drop', e => {
+        e.preventDefault();
+        const dropTarget = e.target.closest('.page-preview');
+        if (dragSrcEl && dropTarget && dragSrcEl !== dropTarget) {
+          previewContainer.insertBefore(dragSrcEl, dropTarget.nextSibling);
+        }
+      });
+    }
+  </script>
 </body>
 </html>
