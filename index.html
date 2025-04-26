@@ -7,154 +7,445 @@
   <meta name="keywords" content="online tools, image tools, PDF tools, compress, convert, edit, merge, split" />
   <meta name="author" content="Vishwakarmae-solution" />
   <title>Tech_Gen Online Tools | Image & PDF Tools</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    :root {
+      --primary: #6c5ce7;
+      --secondary: #a29bfe;
+      --accent: #fd79a8;
+      --dark: #2d3436;
+      --light: #f5f6fa;
+      --success: #00b894;
+      --info: #0984e3;
+      --warning: #fdcb6e;
+      --danger: #d63031;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
+
+    @font-face {
+      font-family: 'Poppins';
+      src: url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    }
+
     body {
-      background: #f0f4f8;
-      color: #333;
+      background: var(--light);
+      color: var(--dark);
+      min-height: 100vh;
     }
+
     header {
-      background: linear-gradient(to right, #667eea, #764ba2);
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
       color: white;
       padding: 2rem 1rem;
       text-align: center;
       position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      transform: rotate(30deg);
+      z-index: 1;
+    }
+
     header h1 {
-      font-size: 2.5rem;
+      font-size: 2.8rem;
+      margin-bottom: 0.5rem;
+      position: relative;
+      z-index: 2;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    header img {
-      max-width: 150px; /* Set logo size */
+
+    header p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      position: relative;
+      z-index: 2;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .logo {
       position: absolute;
       top: 1rem;
       left: 1rem;
+      height: 50px;
+      z-index: 2;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
     }
+
     .container {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: auto;
       padding: 2rem;
+      position: relative;
+      z-index: 1;
     }
+
     .tool-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 2rem;
+      margin-top: 2rem;
     }
+
     .tool-card {
       background: white;
-      padding: 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      transition: transform 0.2s ease;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
       text-align: center;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.05);
     }
+
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(to bottom, var(--primary), var(--accent));
+      transition: width 0.3s ease;
+    }
+
     .tool-card:hover {
-      transform: translateY(-5px);
+      transform: translateY(-8px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
     }
+
+    .tool-card:hover::before {
+      width: 8px;
+    }
+
     .tool-card h3 {
       margin-bottom: 1rem;
-      color: #4a5568;
+      color: var(--dark);
+      font-weight: 600;
+      position: relative;
+      display: inline-block;
     }
+
+    .tool-card h3::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 3px;
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      border-radius: 3px;
+    }
+
     .tool-card p {
       font-size: 0.95rem;
       color: #666;
+      margin-bottom: 1.5rem;
     }
+
+    .tool-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .tool-link {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      height: 100%;
+    }
+
+    .cta-button {
+      display: inline-block;
+      padding: 0.8rem 1.8rem;
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      color: white;
+      border-radius: 50px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
+    }
+
     .ad-section {
-      margin: 3rem 0;
+      margin: 4rem 0;
       text-align: center;
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
     }
+
     footer {
       text-align: center;
-      padding: 2rem;
-      background: #333;
+      padding: 3rem 2rem;
+      background: linear-gradient(135deg, var(--dark), #1e272e);
       color: white;
+      position: relative;
+    }
+
+    footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSg0NSkiPjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgZmlsbD0idXJsKCNwYXR0ZXJuKSIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIvPjwvc3ZnPg==');
+    }
+
+    .footer-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .social-links a {
+      color: white;
+      font-size: 1.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .social-links a:hover {
+      transform: translateY(-3px);
+    }
+
+    .floating-shapes {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.1;
+      filter: blur(40px);
+    }
+
+    .shape-1 {
+      width: 300px;
+      height: 300px;
+      background: var(--accent);
+      top: -100px;
+      left: -100px;
+    }
+
+    .shape-2 {
+      width: 200px;
+      height: 200px;
+      background: var(--primary);
+      bottom: -50px;
+      right: -50px;
+    }
+
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 2rem;
+        margin-top: 1rem;
+      }
+
+      .logo {
+        position: static;
+        margin-bottom: 1rem;
+      }
+
+      .tool-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .container {
+        padding: 1.5rem;
+      }
     }
   </style>
 </head>
 <body>
   <header>
-    <!-- Add Logo Image -->
-   <h1>Tech_Gen Online Tools</h1>
-    <p>Compress, convert, and edit your images and PDFs easily</p>
+    <!-- Add Logo -->
+    <img src="https://drive.google.com/drive/u/1/home/Tech_Gen.png" alt="Tech_Gen Logo" class="logo">
+    <h1>Tech_Gen Online Tools</h1>
+    <p>Powerful, easy-to-use tools for all your image and PDF needs</p>
+    
+    <div class="floating-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+    </div>
   </header>
+
   <div class="container">
     <section class="tool-grid">
       <div class="tool-card">
-  <a href="/tools/img-comperssion.html" style="text-decoration: none; color: inherit;">
-    <h3>Image Compressor</h3>
-    <p>Compress image files (JPG, PNG, WebP) without losing quality</p>
-  </a>
-</div>
+        <a href="/tools/img-comperssion.html" class="tool-link">
+          <div class="tool-icon">
+            <i class="fas fa-compress-alt"></i>
+          </div>
+          <h3>Image Compressor</h3>
+          <p>Reduce image file size without losing quality</p>
+          <span class="cta-button">Use Tool</span>
+        </a>
+      </div>
+
       <div class="tool-card">
-  <a href="/tools/imgtopdf.html" style="text-decoration: none; color: inherit;">
-    <h3>Image to PDF</h3>
-    <p>Convert your images to PDF format in seconds</p>
-  </a>
-</div>
-<div class="tool-card">
-  <a href="/tools/ImageResizer.html" style="text-decoration: none; color: inherit;">
-    <h3>Image Resizer</h3>
-    <p>Resize your images to exact dimensions quickly</p>
-  </a>
-</div> 
+        <a href="/tools/imgtopdf.html" class="tool-link">
+          <div class="tool-icon">
+            <i class="fas fa-file-pdf"></i>
+          </div>
+          <h3>Image to PDF</h3>
+          <p>Convert images to PDF documents instantly</p>
+          <span class="cta-button">Use Tool</span>
+        </a>
+      </div>
+
       <div class="tool-card">
-  <a href="/tools/pdf-merger.html" style="text-decoration: none; color: inherit;">
-    <h3>PDF Merger</h3>
-    <p>Combine multiple PDFs into a single document effortlessly</p>
-  </a>
-</div>
-    <div class="tool-card">
-  <a href="/tools/PDFSplitter.html" style="text-decoration: none; color: inherit;">
-    <h3>PDF Splitter</h3>
-    <p>Split PDF pages into separate files instantly</p>
-  </a>
-</div>
-<div class="tool-card">
-  <a href="/tools/pdfremovepages.html" style="text-decoration: none; color: inherit;">
-    <h3>PDF Page Remove</h3>
-    <p>PDF Page Remove files instantly</p>
-  </a>
-</div>
-    <div class="tool-card">
-  <a href="/tools/pdforaganise.html" style="text-decoration: none; color: inherit;">
-    <h3>Pdf Oraganise</h3>
-    <p>Pdf Oraganise instantly</p>
-  </a>
-</div>
+        <a href="/tools/ImageResizer.html" class="tool-link">
+          <div class="tool-icon">
+            <i class="fas fa-expand"></i>
+          </div>
+          <h3>Image Resizer</h3>
+          <p>Resize images to exact dimensions quickly</p>
+          <span class="cta-button">Use Tool</span>
+        </a>
+      </div>
+
       <div class="tool-card">
-  <a href="/tools/pdftojpg.html" style="text-decoration: none; color: inherit;">
-    <h3>Pdf to Jpg</h3>
-    <p>PDF to Jpg Done Here</p>
-  </a>
-</div>
+        <a href="/tools/pdf-merger.html" class="tool-link">
+          <div class="tool-icon">
+            <i class="fas fa-object-group"></i>
+          </div>
+          <h3>PDF Merger</h3>
+          <p>Combine multiple PDFs into one document</p>
+          <span class="cta-button">Use Tool</span>
+        </a>
+      </div>
+
       <div class="tool-card">
-  <a href="/tools/pdftoword.html" style="text-decoration: none; color: inherit;">
-    <h3>PDF to Word</h3>
-    <p>PDF To Word files instantly</p>
-  </a>
-</div>
-    <div class="tool-card">
-  <a href="/tools/pdftoexcel.html" style="text-decoration: none; color: inherit;">
-    <h3>Pdf to Excel</h3>
-    <p>PDF to Excel Done Here instantly</p>
-  </a>
-</div>
+        <a href="/tools/PDFSplitter.html" class="tool-link">
+          <div class="tool-icon">
+            <i class="fas fa-cut"></i>
+          </div>
+          <h3>PDF Splitter</h3>
+          <p>Split PDF pages into separate files</p>
+          <span class="cta-button">Use Tool</span>
+        </a>
+      </div>
+
       <div class="tool-card">
-  <a href="/tools/WordtoPDF.html" style="text-decoration: none; color: inherit;">
-    <h3>Word to PDF</h3>
-    <p>Worf to PDF Fast</p>
-  </a>
-</div>
+        <a href="/tools/pdfremovepages.html" class="tool-link">
+          <div class="tool-icon">
+            <i class="fas fa-minus-circle"></i>
+          </div>
+          <h3>PDF Page Remove</h3>
+          <p>Delete specific pages from PDF files</p>
+          <span class="cta-button">Use Tool</span>
+        </a>
+      </div>
+
       <div class="tool-card">
-  <a href="/tools/ExceltoPDF.html" style="text-decoration: none; color: inherit;">
-    <h3>Excel to Pdf</h3>
-    <p>Excel to PDF instantly Done</p>
-  </a>
-</div>          
+        <a href="/tools/pdforaganise.html" class="tool-link">
+          <div class="tool-icon">
+            <i class="fas fa-sort-amount-down"></i>
+          </div>
+          <h3>PDF Organizer</h3>
+          <p>Rearrange and organize PDF pages</p>
+          <span class="cta-button">Use Tool</span>
+        </a>
+      </div>
+
+      <div class="tool-card">
+        <a href="/tools/pdftojpg.html" class="tool-link">
+          <div class="tool-icon">
+            <i class="fas fa-file-image"></i>
+          </div>
+          <h3>PDF to JPG</h3>
+          <p>Convert PDF pages to JPG images</p>
+          <span class="cta-button">Use Tool</span>
+        </a>
+      </div>
+
+      <div class="tool-card">
+        <a href="/tools/pdftoword.html" class="tool-link">
+          <div class="tool-icon">
+            <i class="fas fa-file-word"></i>
+          </div>
+          <h3>PDF to Word</h3>
+          <p>Convert PDF files to editable Word documents</p>
+          <span class="cta-button">Use Tool</span>
+        </a>
+      </div>
+
+      <div class="tool-card">
+        <a href="/tools/pdftoexcel.html" class="tool-link">
+          <div class="tool-icon">
+            <i class="fas fa-file-excel"></i>
+          </div>
+          <h3>PDF to Excel</h3>
+          <p>Extract tables from PDF to Excel spreadsheets</p>
+          <span class="cta-button">Use Tool</span>
+        </a>
+      </div>
+
+      <div class="tool-card">
+        <a href="/tools/WordtoPDF.html" class="tool-link">
+          <div class="tool-icon">
+            <i class="fas fa-file-export"></i>
+          </div>
+          <h3>Word to PDF</h3>
+          <p>Convert Word documents to PDF format</p>
+          <span class="cta-button">Use Tool</span>
+        </a>
+      </div>
+
+      <div class="tool-card">
+        <a href="/tools/ExceltoPDF.html" class="tool-link">
+          <div class="tool-icon">
+            <i class="fas fa-file-export"></i>
+          </div>
+          <h3>Excel to PDF</h3>
+          <p>Convert Excel spreadsheets to PDF files</p>
+          <span class="cta-button">Use Tool</span>
+        </a>
+      </div>
     </section>
 
     <div class="ad-section">
@@ -172,8 +463,22 @@
   </div>
 
   <footer>
-    <p>&copy; 2025 Tech_Gen Online Tools. All rights reserved.</p>
+    <div class="footer-content">
+      <h3>Tech_Gen Online Tools</h3>
+      <p>Your one-stop solution for all file conversion and editing needs</p>
+      
+      <div class="social-links">
+        <a href="#"><i class="fab fa-facebook"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-linkedin"></i></a>
+        <a href="#"><i class="fab fa-github"></i></a>
+      </div>
+      
+      <p>&copy; 2025 Tech_Gen Online Tools. All rights reserved.</p>
+    </div>
   </footer>
+
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2273117553145364"
      crossorigin="anonymous"></script>
 </body>
