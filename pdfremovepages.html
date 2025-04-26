@@ -1,154 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Remove specific pages from your PDF files easily online. Free, secure, and fast." />
-  <meta name="keywords" content="PDF remover, remove pages from PDF, online PDF editor, PDF splitter" />
-  <meta name="author" content="Vishwakarmae-solution" />
+  <!-- Basic SEO Tags -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Easily remove specific pages from PDF files online. Free, secure, fast tool with page previews.">
+  <meta name="keywords" content="Remove PDF Pages, PDF Editor Online, PDF Page Remover, Free PDF Tool, PDF Organizer">
+  <meta name="author" content="Tech_Gen Online Tools">
+
+  <!-- Open Graph Tags for social sharing -->
+  <meta property="og:title" content="Remove Pages from PDF - Free Online Tool">
+  <meta property="og:description" content="Visually select and remove pages from your PDF. 100% free and secure.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://yourwebsite.com/remove-pdf-pages">
+  <meta property="og:image" content="https://yourwebsite.com/images/preview-thumbnail.png">
+
   <title>Remove Pages from PDF | Tech_Gen Online Tools</title>
 
-  <!-- PDF-LIB Library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <!-- PDF Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js" defer></script>
 
+  <!-- Styles -->
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background: #f0f4f8; margin: 0; padding: 0; color: #333; }
+    header { background: linear-gradient(90deg, #667eea, #764ba2); padding: 2rem; text-align: center; color: white; border-radius: 0 0 10px 10px; }
+    main { max-width: 1200px; margin: 2rem auto; padding: 1rem; background: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .upload-section { text-align: center; margin-bottom: 2rem; }
+    .upload-section input[type="file"] { display: none; }
+    .upload-label { background: #667eea; color: white; padding: 1rem 2rem; border-radius: 8px; cursor: pointer; display: inline-block; }
+    .pages-preview { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-top: 2rem; }
+    .page-box { position: relative; border: 2px solid transparent; border-radius: 8px; overflow: hidden; cursor: pointer; transition: 0.3s; }
+    .page-box.selected { border-color: #f87171; }
+    .page-number { position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.6); color: white; font-size: 0.8rem; padding: 2px 5px; border-radius: 4px; }
+    canvas { width: 150px; height: auto; display: block; }
+    .remove-btn { margin-top: 2rem; width: 100%; padding: 1rem; background: #667eea; color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; transition: 0.3s; }
+    .remove-btn:hover { background: #5a67d8; }
+    #download-link { display: none; margin-top: 2rem; text-align: center; }
+    #download-link a { background: #667eea; color: white; padding: 0.8rem 2rem; border-radius: 8px; text-decoration: none; display: inline-block; }
+    footer { text-align: center; margin-top: 4rem; font-size: 0.9rem; color: #666; padding: 1rem; }
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      canvas { width: 100px; }
     }
-    body {
-      background: #f0f4f8;
-      padding: 2rem;
-      color: #333;
-    }
-    header {
-      background: linear-gradient(to right, #667eea, #764ba2);
-      color: white;
-      padding: 2rem;
-      text-align: center;
-      margin-bottom: 2rem;
-      border-radius: 10px;
-    }
-    header h1 {
-      margin-bottom: 0.5rem;
-    }
-    .tool-container {
-      background: white;
-      padding: 2rem;
-      max-width: 600px;
-      margin: auto;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      text-align: center;
-    }
-    .tool-container input, .tool-container button {
-      margin: 1rem 0;
-      padding: 0.8rem;
-      width: 100%;
-      font-size: 1rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-    .tool-container button {
-      background: #667eea;
-      color: white;
-      border: none;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    .tool-container button:hover {
-      background: #5a67d8;
-    }
-    .ad-section {
-      margin: 3rem 0;
-      text-align: center;
-    }
-    footer {
-      text-align: center;
-      margin-top: 4rem;
-      color: #666;
-      font-size: 0.9rem;
-    }
+    /* Ad section */
+    .ad-section { text-align: center; margin: 3rem 0; }
   </style>
+
+  <!-- Google AdSense Code (replace YOUR-AD-UNIT-ID below) -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2273117553145364"
+    crossorigin="anonymous"></script>
+
 </head>
 
 <body>
 
-  <header>
-    <h1>PDF Page Remover</h1>
-    <p>Upload your PDF and remove unwanted pages easily!</p>
-  </header>
+<header>
+  <h1>Remove Pages from PDF</h1>
+  <p>Visually select and delete pages from your PDF for free.</p>
+</header>
 
-  <div class="tool-container">
-    <input type="file" id="pdf-upload" accept="application/pdf" />
-    <input type="text" id="pages-to-remove" placeholder="Enter pages to remove (e.g., 2,4,7)" />
-    <button onclick="removePages()">Remove Pages</button>
-    <a id="download-link" style="display:none; margin-top: 1rem;">Download New PDF</a>
-  </div>
+<main>
+  <section class="upload-section">
+    <label class="upload-label" for="pdf-upload">Upload Your PDF</label>
+    <input type="file" id="pdf-upload" accept="application/pdf">
+  </section>
 
+  <!-- Ad Section -->
   <div class="ad-section">
-    <!-- Google AdSense Placeholder -->
+    <!-- AdSense ad slot -->
     <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-app-pub-2273117553145364/5191897711"
-         data-ad-slot="1234567890"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-    <script>
-      (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
+      style="display:block"
+      data-ad-client="ca-app-pub-2273117553145364/5191897711"
+      data-ad-slot="YOUR-AD-UNIT-ID"
+      data-ad-format="auto"
+      data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
   </div>
 
-  <footer>
-    &copy; 2025 Tech_Gen Online Tools. All rights reserved.
-  </footer>
+  <section class="pages-preview" id="pages-preview"></section>
 
-  <!-- JS Logic -->
-  <script>
-    async function removePages() {
-      const fileInput = document.getElementById('pdf-upload');
-      const pagesInput = document.getElementById('pages-to-remove');
-      const downloadLink = document.getElementById('download-link');
+  <button class="remove-btn" onclick="removeSelectedPages()" id="remove-btn" disabled>Remove Selected Pages</button>
 
-      if (!fileInput.files.length) {
-        alert('Please upload a PDF first.');
-        return;
-      }
+  <div id="download-link"></div>
+</main>
 
-      const file = fileInput.files[0];
-      const arrayBuffer = await file.arrayBuffer();
-      const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+<footer>
+  &copy; 2025 Tech_Gen Online Tools. All rights reserved.
+</footer>
 
-      const totalPages = pdfDoc.getPageCount();
-      const pagesToRemove = pagesInput.value.split(',')
-        .map(num => parseInt(num.trim()) - 1) // PDF-lib pages are 0-indexed
-        .filter(num => num >= 0 && num < totalPages);
+<!-- Main JS -->
+<script defer>
+  let pdfDocGlobal;
+  let selectedPages = new Set();
+  let uploadedArrayBuffer;
 
-      const newPdfDoc = await PDFLib.PDFDocument.create();
+  const pdfUpload = document.getElementById('pdf-upload');
+  const pagesPreview = document.getElementById('pages-preview');
+  const removeBtn = document.getElementById('remove-btn');
+  const downloadLink = document.getElementById('download-link');
 
-      for (let i = 0; i < totalPages; i++) {
-        if (!pagesToRemove.includes(i)) {
-          const [copiedPage] = await newPdfDoc.copyPages(pdfDoc, [i]);
-          newPdfDoc.addPage(copiedPage);
-        }
-      }
+  pdfUpload.addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    uploadedArrayBuffer = await file.arrayBuffer();
+    pdfDocGlobal = await PDFLib.PDFDocument.load(uploadedArrayBuffer);
+    renderPagePreviews(uploadedArrayBuffer);
+    removeBtn.disabled = false;
+  });
 
-      const newPdfBytes = await newPdfDoc.save();
-      const blob = new Blob([newPdfBytes], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
+  async function renderPagePreviews(arrayBuffer) {
+    pagesPreview.innerHTML = '';
+    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+    const pdf = await loadingTask.promise;
 
-      downloadLink.href = url;
-      downloadLink.download = "modified.pdf";
-      downloadLink.style.display = 'block';
-      downloadLink.textContent = "Download New PDF";
+    for (let i = 0; i < pdf.numPages; i++) {
+      const page = await pdf.getPage(i + 1);
+      const viewport = page.getViewport({ scale: 0.5 });
+
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+
+      await page.render({ canvasContext: context, viewport: viewport }).promise;
+
+      const pageBox = document.createElement('div');
+      pageBox.className = 'page-box';
+      pageBox.dataset.pageNumber = i;
+
+      const pageNumber = document.createElement('div');
+      pageNumber.className = 'page-number';
+      pageNumber.textContent = i + 1;
+
+      pageBox.appendChild(canvas);
+      pageBox.appendChild(pageNumber);
+
+      pageBox.addEventListener('click', () => togglePageSelection(pageBox));
+      pagesPreview.appendChild(pageBox);
     }
-  </script>
+  }
 
-  <!-- Load AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2273117553145364"
-     crossorigin="anonymous"></script>
+  function togglePageSelection(box) {
+    const pageNum = parseInt(box.dataset.pageNumber);
+    if (selectedPages.has(pageNum)) {
+      selectedPages.delete(pageNum);
+      box.classList.remove('selected');
+    } else {
+      selectedPages.add(pageNum);
+      box.classList.add('selected');
+    }
+  }
+
+  async function removeSelectedPages() {
+    if (!pdfDocGlobal) return;
+    const totalPages = pdfDocGlobal.getPageCount();
+    const newPdfDoc = await PDFLib.PDFDocument.create();
+
+    for (let i = 0; i < totalPages; i++) {
+      if (!selectedPages.has(i)) {
+        const [copiedPage] = await newPdfDoc.copyPages(pdfDocGlobal, [i]);
+        newPdfDoc.addPage(copiedPage);
+      }
+    }
+
+    const newPdfBytes = await newPdfDoc.save();
+    const blob = new Blob([newPdfBytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+
+    downloadLink.innerHTML = `<a href="${url}" download="modified.pdf">Download Your New PDF</a>`;
+    downloadLink.style.display = 'block';
+  }
+</script>
 
 </body>
 </html>
