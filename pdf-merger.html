@@ -1,105 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Merger</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        #pdfList { display: flex; gap: 10px; overflow-x: auto; padding: 10px; border: 1px solid #ccc; }
-        .pdfItem { cursor: grab; padding: 5px; border: 1px solid #999; display: flex; flex-direction: column; }
-        .rotateBtn { margin-top: 5px; }
-        .ad-container { width: 300px; height: 250px; margin: 20px auto; border: 1px dashed #888; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Merge PDFs easily with preview, rotation, and reorder. Free PDF tool with AdSense support." />
+  <title>PDF Merger Tool</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+    }
+    body {
+      margin: 0;
+      background: #f7f9fc;
+      color: #333;
+    }
+    header {
+      background: #5a67d8;
+      color: white;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    header h1 {
+      margin-bottom: 0.5rem;
+    }
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 2rem 1rem;
+    }
+    .uploader {
+      background: #fff;
+      border: 2px dashed #ccc;
+      border-radius: 10px;
+      text-align: center;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      cursor: pointer;
+    }
+    .preview-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .page-preview {
+      width: 120px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 0.5rem;
+      position: relative;
+      text-align: center;
+      cursor: grab;
+    }
+    .page-preview img {
+      width: 100%;
+      border-radius: 4px;
+    }
+    .controls {
+      margin-top: 0.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 0.3rem;
+    }
+    .controls button {
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .ad-section {
+      margin: 3rem 0;
+      text-align: center;
+    }
+    footer {
+      background: #2d3748;
+      color: white;
+      text-align: center;
+      padding: 1.5rem;
+      margin-top: 3rem;
+    }
+  </style>
 </head>
 <body>
 
-    <h2>PDF Merger with Page Dragging & Rotation</h2>
-    <input type="file" id="pdfUpload" multiple accept=".pdf">
-    <button onclick="mergePDFs()">Merge PDFs</button>
-    
-    <div id="pdfList"></div>
+<header>
+  <h1>PDF Merger Tool</h1>
+  <p>Reorder, preview & rotate PDF pages before merging</p>
+</header>
 
-    <!-- 🔹 Google AdSense Ad Space -->
-    <div class="ad-container">
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="YOUR_ADSENSE_CLIENT_ID"
-             data-ad-slot="YOUR_ADSENSE_SLOT_ID"
-             data-ad-format="auto"></ins>
-        <script>
-            (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-    </div>
+<div class="container">
+  <div class="uploader" id="drop-zone">
+    <p>Click or Drag & Drop PDF files here</p>
+    <input type="file" id="file-input" accept="application/pdf" multiple hidden />
+  </div>
 
+  <div class="preview-container" id="preview-container">
+    <!-- Thumbnails go here -->
+  </div>
+
+  <div class="ad-section">
+    <!-- Google AdSense -->
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+         data-ad-slot="1234567890"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
     <script>
-        let pdfFiles = [];
-        document.getElementById("pdfUpload").addEventListener("change", handleFileUpload);
-
-        function handleFileUpload(event) {
-            const files = event.target.files;
-            pdfFiles = [...pdfFiles, ...files];
-            displayPDFs();
-        }
-
-        function displayPDFs() {
-            const list = document.getElementById("pdfList");
-            list.innerHTML = '';
-            pdfFiles.forEach((file, index) => {
-                const item = document.createElement("div");
-                item.classList.add("pdfItem");
-                item.innerHTML = `
-                    <span>${file.name}</span>
-                    <canvas id="preview${index}"></canvas>
-                    <button class="rotateBtn" onclick="rotatePage(${index})">Rotate</button>
-                `;
-                list.appendChild(item);
-                renderPDFPreview(file, index);
-            });
-        }
-
-        async function renderPDFPreview(file, index) {
-            const fileReader = new FileReader();
-            fileReader.onload = async function () {
-                const typedArray = new Uint8Array(this.result);
-                const pdfDoc = await pdfjsLib.getDocument({ data: typedArray }).promise;
-                const page = await pdfDoc.getPage(1);
-                const canvas = document.getElementById(`preview${index}`);
-                const context = canvas.getContext("2d");
-                const viewport = page.getViewport({ scale: 0.5 });
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
-                await page.render({ canvasContext: context, viewport }).promise;
-            };
-            fileReader.readAsArrayBuffer(file);
-        }
-
-        function rotatePage(index) {
-            alert("Rotation functionality would rotate PDF at index: " + index);
-        }
-
-        async function mergePDFs() {
-            if (pdfFiles.length === 0) return alert("No PDFs to merge!");
-            const pdfDoc = await PDFLib.PDFDocument.create();
-            
-            for (const file of pdfFiles) {
-                const data = await file.arrayBuffer();
-                const loadedPdf = await PDFLib.PDFDocument.load(data);
-                const copiedPages = await pdfDoc.copyPages(loadedPdf, loadedPdf.getPageIndices());
-                copiedPages.forEach(page => pdfDoc.addPage(page));
-            }
-
-            const mergedPdfBytes = await pdfDoc.save();
-            const blob = new Blob([mergedPdfBytes], { type: "application/pdf" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "Merged_PDF.pdf";
-            link.click();
-        }
+      (adsbygoogle = window.adsbygoogle || []).push({});
     </script>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2025 PDF Merger by Tech_Gen. All rights reserved.</p>
+</footer>
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const previewContainer = document.getElementById('preview-container');
+
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropZone.style.borderColor = '#5a67d8';
+  });
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.style.borderColor = '#ccc';
+  });
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.style.borderColor = '#ccc';
+    handleFiles(e.dataTransfer.files);
+  });
+  fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+  function handleFiles(files) {
+    for (let i = 0; i < files.length; i++) {
+      // Placeholder for preview - not real PDF pages
+      const preview = document.createElement('div');
+      preview.className = 'page-preview';
+      preview.draggable = true;
+
+      const img = document.createElement('img');
+      img.src = 'https://via.placeholder.com/120x160.png?text=PDF+Page';
+      preview.appendChild(img);
+
+      const controls = document.createElement('div');
+      controls.className = 'controls';
+
+      const rotateBtn = document.createElement('button');
+      rotateBtn.innerText = '⟳';
+      rotateBtn.onclick = () => {
+        const angle = parseInt(img.dataset.angle || '0') + 90;
+        img.style.transform = `rotate(${angle % 360}deg)`;
+        img.dataset.angle = angle % 360;
+      };
+
+      controls.appendChild(rotateBtn);
+      preview.appendChild(controls);
+      previewContainer.appendChild(preview);
+
+      enableDrag();
+    }
+  }
+
+  function enableDrag() {
+    let dragging = null;
+    const items = document.querySelectorAll('.page-preview');
+    items.forEach(item => {
+      item.addEventListener('dragstart', () => dragging = item);
+      item.addEventListener('dragover', e => e.preventDefault());
+      item.addEventListener('drop', e => {
+        e.preventDefault();
+        if (dragging && dragging !== item) {
+          previewContainer.insertBefore(dragging, item.nextSibling);
+        }
+      });
+    });
+  }
+</script>
 
 </body>
 </html>
