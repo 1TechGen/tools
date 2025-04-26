@@ -148,34 +148,52 @@
     }
 
     async function generateMergedPDFBlob() {
-      const { PDFDocument } = PDFLib;
-      const mergedPdf = await PDFDocument.create();
+  const { PDFDocument, degrees } = PDFLib;
+  const mergedPdf = await PDFDocument.create();
 
-      const sizeMap = {
-        A4: [595.28, 841.89],
-        LETTER: [612, 792]
-      };
+  const sizeMap = {
+    A4: [595.28, 841.89],
+    LETTER: [612, 792]
+  };
 
-      const pageSize = document.getElementById('page-size').value;
-      const orientation = document.getElementById('orientation').value;
-      let [w, h] = sizeMap[pageSize];
-      if (orientation === 'landscape') [w, h] = [h, w];
+  const pageSize = document.getElementById('page-size').value;
+  const orientation = document.getElementById('orientation').value;
+  let [w, h] = sizeMap[pageSize];
+  if (orientation === 'landscape') [w, h] = [h, w];
 
-      const previewPages = previewContainer.querySelectorAll('.page-preview canvas');
-      for (let canvas of previewPages) {
-        const angle = parseInt(canvas.dataset.angle || '0');
-        const imageBytes = canvas.toDataURL("image/png");
-        const image = await mergedPdf.embedPng(imageBytes);
-        const page = mergedPdf.addPage([w, h]);
-        const { width, height } = image.scaleToFit(w, h);
-        const x = (w - width) / 2;
-        const y = (h - height) / 2;
-        page.drawImage(image, { x, y, width, height, rotate: PDFLib.degrees(angle || 0) });
-      }
+  const previewPages = previewContainer.querySelectorAll('.page-preview');
+  
+  for (let preview of previewPages) {
+    const pageIndex = parseInt(preview.dataset.pageIndex);
+    const pdfIndex = parseInt(preview.dataset.pdfIndex);
+    const rotation = parseInt(preview.dataset.rotation || '0');
 
-      return new Blob([await mergedPdf.save()], { type: 'application/pdf' });
-    }
+    const originalPdf = pdfDocs[pdfIndex];
+    const copiedPdf = await PDFLib.PDFDocument.load(await originalPdf.file.arrayBuffer());
+    const [copiedPage] = await mergedPdf.copyPages(copiedPdf, [pageIndex]);
+    
+    // Set custom page size
+    const newPage = mergedPdf.addPage([w, h]);
 
+    const { width, height } = copiedPage.getSize();
+    const scale = Math.min(w / width, h / height);
+    const scaledWidth = width * scale;
+    const scaledHeight = height * scale;
+    const x = (w - scaledWidth) / 2;
+    const y = (h - scaledHeight) / 2;
+
+    newPage.drawPage(copiedPage, {
+      x: x,
+      y: y,
+      xScale: scale,
+      yScale: scale,
+      rotate: degrees(rotation)
+    });
+  }
+
+  return new Blob([await mergedPdf.save()], { type: 'application/pdf' });
+}
+    
     async function downloadMergedPDF() {
       const blob = await generateMergedPDFBlob();
       const link = document.createElement('a');
