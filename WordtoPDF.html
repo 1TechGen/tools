@@ -1,136 +1,88 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Word to PDF Converter</title>
-  <meta name="description" content="Convert Word documents to PDF with options to select page size and orientation." />
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f6f8;
-      color: #333;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background: linear-gradient(to right, #4e54c8, #8f94fb);
-      padding: 2rem;
-      text-align: center;
-      color: white;
-    }
-    .container {
-      max-width: 900px;
-      margin: auto;
-      padding: 2rem;
-      background: white;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      border-radius: 12px;
-      margin-top: 2rem;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    label {
-      display: block;
-      margin: 1rem 0 0.5rem;
-    }
-    select, input[type="file"], button {
-      width: 100%;
-      padding: 0.75rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      margin-bottom: 1rem;
-    }
-    button {
-      background-color: #4e54c8;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #4346a5;
-    }
-    .preview-box {
-      padding: 1rem;
-      border: 2px dashed #aaa;
-      margin-top: 1rem;
-      text-align: center;
-    }
-    .ad-section {
-      margin: 3rem 0;
-      text-align: center;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Word to PDF Converter</h1>
-    <p>Choose your preferences and convert your Word documents easily!</p>
-  </header>
+async function convertToPDF() {
+  if (!wordFileInput.files.length) {
+    alert('Please select a Word document first.');
+    return;
+  }
 
-  <div class="container">
-    <h2>Convert Your Document</h2>
-    <form>
-      <label for="wordFile">Upload Word File (.doc or .docx)</label>
-      <input type="file" id="wordFile" accept=".doc,.docx" />
+  const file = wordFileInput.files[0];
 
-      <label for="pageSize">Select Page Size</label>
-      <select id="pageSize">
-        <option value="A4">A4</option>
-        <option value="Letter">Letter</option>
-        <option value="Legal">Legal</option>
-      </select>
+  try {
+    convertBtn.disabled = true;
+    loadingDiv.style.display = 'block';
 
-      <label for="orientation">Select Orientation</label>
-      <select id="orientation">
-        <option value="portrait">Portrait</option>
-        <option value="landscape">Landscape</option>
-      </select>
+    const arrayBuffer = await file.arrayBuffer();
 
-      <div class="preview-box" id="preview">
-        <p><strong>Preview:</strong></p>
-        <p id="previewText">Page Size: A4<br>Orientation: Portrait</p>
-      </div>
+    // Extract text from Word using mammoth.js
+    const result = await mammoth.extractRawText({ arrayBuffer });
+    const extractedText = result.value;
 
-      <button type="button" onclick="convertToPDF()">Convert to PDF</button>
-    </form>
+    const { PDFDocument, rgb } = PDFLib;
+    const pdfDoc = await PDFDocument.create();
 
-    <div class="ad-section">
-      <!-- Google AdSense Ad Unit -->
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-app-pub-2273117553145364/5191897711"
-           data-ad-slot="1234567890"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-      <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
-    </div>
-  </div>
-
-  <footer style="text-align:center; padding:2rem; color:#fff; background:#333;">
-    &copy; 2025 Tech_Gen Tools. All rights reserved.
-  </footer>
-
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-  <script>
-    const pageSize = document.getElementById('pageSize');
-    const orientation = document.getElementById('orientation');
-    const previewText = document.getElementById('previewText');
-
-    pageSize.addEventListener('change', updatePreview);
-    orientation.addEventListener('change', updatePreview);
-
-    function updatePreview() {
-      previewText.innerHTML = `Page Size: ${pageSize.value}<br>Orientation: ${orientation.value}`;
+    let pageWidth, pageHeight;
+    switch (pageSizeSelect.value) {
+      case 'Letter':
+        pageWidth = 612;
+        pageHeight = 792;
+        break;
+      case 'Legal':
+        pageWidth = 612;
+        pageHeight = 1008;
+        break;
+      case 'A4':
+      default:
+        pageWidth = 595;
+        pageHeight = 842;
     }
 
-    function convertToPDF() {
-      alert("This is a UI demo. You can integrate backend logic using libraries like `pdf-lib`, `LibreOffice`, or server-side services like `CloudConvert` or `PDFShift`.");
+    if (orientationSelect.value === 'landscape') {
+      [pageWidth, pageHeight] = [pageHeight, pageWidth];
     }
-  </script>
-</body>
-</html>
+
+    const page = pdfDoc.addPage([pageWidth, pageHeight]);
+
+    const fontSize = 12;
+    const margin = 50;
+    const { height } = page.getSize();
+
+    const textLines = extractedText.split('\n');
+
+    let y = height - margin;
+
+    for (let line of textLines) {
+      if (y < margin) {
+        page = pdfDoc.addPage([pageWidth, pageHeight]);
+        y = height - margin;
+      }
+
+      page.drawText(line, {
+        x: margin,
+        y: y,
+        size: fontSize,
+        color: rgb(0, 0, 0),
+        maxWidth: pageWidth - 2 * margin,
+      });
+
+      y -= fontSize + 6; // Line spacing
+    }
+
+    const pdfBytes = await pdfDoc.save();
+
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.name.replace(/\.[^/.]+$/, '') + '.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+  } catch (error) {
+    console.error('Conversion error:', error);
+    alert('Error converting document: ' + error.message);
+  } finally {
+    loadingDiv.style.display = 'none';
+    convertBtn.disabled = false;
+  }
+}
