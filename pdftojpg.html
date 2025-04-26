@@ -40,7 +40,7 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       text-align: center;
     }
-    input, button {
+    input, button, select {
       width: 100%;
       margin: 1rem 0;
       padding: 0.8rem;
@@ -58,6 +58,20 @@
     button:hover {
       background: #5a67d8;
     }
+    .options {
+      display: flex;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .option-group {
+      flex: 1;
+      text-align: left;
+    }
+    .option-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
     .ad-section {
       margin: 3rem 0;
       text-align: center;
@@ -69,16 +83,38 @@
       gap: 1rem;
       justify-content: center;
     }
+    .image-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
     #images img {
-      width: 200px;
+      max-width: 200px;
       border-radius: 8px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .download-btn {
+      background: #4CAF50;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: background 0.3s;
+    }
+    .download-btn:hover {
+      background: #3e8e41;
     }
     footer {
       margin-top: 4rem;
       text-align: center;
       font-size: 0.9rem;
       color: #666;
+    }
+    .loading {
+      margin: 1rem 0;
+      display: none;
     }
   </style>
 </head>
@@ -92,7 +128,31 @@
 
   <div class="container">
     <input type="file" id="pdf-upload" accept="application/pdf" />
+    
+    <div class="options">
+      <div class="option-group">
+        <label for="resolution">Resolution Quality</label>
+        <select id="resolution">
+          <option value="1">Low (72 DPI)</option>
+          <option value="1.5" selected>Medium (150 DPI)</option>
+          <option value="2">High (300 DPI)</option>
+          <option value="3">Very High (600 DPI)</option>
+        </select>
+      </div>
+      
+      <div class="option-group">
+        <label for="quality">JPG Quality</label>
+        <select id="quality">
+          <option value="0.7">Good (70%)</option>
+          <option value="0.8" selected>Better (80%)</option>
+          <option value="0.9">Best (90%)</option>
+          <option value="1.0">Maximum (100%)</option>
+        </select>
+      </div>
+    </div>
+    
     <button onclick="convertPdfToImages()">Convert PDF to JPG</button>
+    <div id="loading" class="loading">Processing PDF pages...</div>
     <div id="images"></div>
   </div>
 
@@ -100,7 +160,7 @@
     <!-- Google AdSense Placeholder -->
     <ins class="adsbygoogle"
          style="display:block"
-         data-ad-client="ca-app-pub-2273117553145364/5191897711"
+         data-ad-client="ca-app-pub-1893797822419017/5436817012"
          data-ad-slot="1234567890"
          data-ad-format="auto"
          data-full-width-responsive="true"></ins>
@@ -118,50 +178,87 @@
     async function convertPdfToImages() {
       const fileInput = document.getElementById('pdf-upload');
       const imagesDiv = document.getElementById('images');
+      const loadingDiv = document.getElementById('loading');
+      const resolution = parseFloat(document.getElementById('resolution').value);
+      const quality = parseFloat(document.getElementById('quality').value);
+      
       imagesDiv.innerHTML = '';
+      loadingDiv.style.display = 'block';
 
       if (!fileInput.files.length) {
         alert('Please upload a PDF.');
+        loadingDiv.style.display = 'none';
         return;
       }
 
-      const file = fileInput.files[0];
-      const fileReader = new FileReader();
-      fileReader.onload = async function() {
-        const typedarray = new Uint8Array(this.result);
+      try {
+        const file = fileInput.files[0];
+        const fileReader = new FileReader();
+        
+        fileReader.onload = async function() {
+          try {
+            const typedarray = new Uint8Array(this.result);
+            const pdf = await pdfjsLib.getDocument(typedarray).promise;
 
-        const pdf = await pdfjsLib.getDocument(typedarray).promise;
+            for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+              const page = await pdf.getPage(pageNumber);
+              const viewport = page.getViewport({ scale: resolution });
+              const canvas = document.createElement('canvas');
+              const context = canvas.getContext('2d');
+              canvas.height = viewport.height;
+              canvas.width = viewport.width;
 
-        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-          const page = await pdf.getPage(pageNumber);
-          const viewport = page.getViewport({ scale: 2 }); // Increase scale for better quality
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
-          canvas.height = viewport.height;
-          canvas.width = viewport.width;
+              await page.render({ 
+                canvasContext: context, 
+                viewport: viewport 
+              }).promise;
 
-          await page.render({ canvasContext: context, viewport: viewport }).promise;
-
-          const img = document.createElement('img');
-          img.src = canvas.toDataURL('image/jpeg');
-          imagesDiv.appendChild(img);
-
-          // Create a download link
-          const link = document.createElement('a');
-          link.href = img.src;
-          link.download = `page-${pageNumber}.jpg`;
-          link.textContent = `Download Page ${pageNumber}`;
-          link.style.display = 'block';
-          link.style.marginTop = '0.5rem';
-          imagesDiv.appendChild(link);
-        }
-      };
-      fileReader.readAsArrayBuffer(file);
+              // Create image container
+              const container = document.createElement('div');
+              container.className = 'image-container';
+              
+              // Create preview image
+              const img = document.createElement('img');
+              img.src = canvas.toDataURL('image/jpeg', quality);
+              img.alt = `Page ${pageNumber}`;
+              
+              // Create download button
+              const downloadBtn = document.createElement('a');
+              downloadBtn.href = canvas.toDataURL('image/jpeg', quality);
+              downloadBtn.download = `page-${pageNumber}-${resolution}x.jpg`;
+              downloadBtn.textContent = `Download Page ${pageNumber}`;
+              downloadBtn.className = 'download-btn';
+              
+              // Add resolution info
+              const info = document.createElement('div');
+              info.textContent = `${canvas.width}×${canvas.height} pixels`;
+              info.style.fontSize = '0.8rem';
+              info.style.color = '#666';
+              
+              container.appendChild(img);
+              container.appendChild(info);
+              container.appendChild(downloadBtn);
+              imagesDiv.appendChild(container);
+            }
+          } catch (error) {
+            console.error('Error processing PDF:', error);
+            alert('Error processing PDF: ' + error.message);
+          } finally {
+            loadingDiv.style.display = 'none';
+          }
+        };
+        
+        fileReader.readAsArrayBuffer(file);
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred: ' + error.message);
+        loadingDiv.style.display = 'none';
+      }
     }
   </script>
 
   <!-- Load AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2273117553145364"
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1893797822419017"
      crossorigin="anonymous"></script>
 
 </body>
