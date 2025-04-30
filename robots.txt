@@ -1,4 +1,0 @@
-User-agent: *  
-Allow: /sitemap.xml  
-Disallow: /cgi-bin/  
-Sitemap: https://1techgen.github.io/tools/sitemap.xml
