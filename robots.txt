@@ -4,4 +4,4 @@ Disallow: /nogooglebot/
 User-agent: *
 Allow: /
 
-Sitemap: https://https://1techgen.github.io/tools/sitemap.xml
+Sitemap: https://1techgen.github.io/tools/sitemap.xml
