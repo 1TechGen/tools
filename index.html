@@ -529,6 +529,58 @@
       <ul class="nav-links">
         <li><a href="/" class="active"><i class="fas fa-home"></i> Home</a></li>
         <li><a href="/tools.html"><i class="fas fa-tools"></i> All Tools</a></li>
+<nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <span class="logo-icon">
+                    <i class="fas fa-tools"></i>
+                </span>
+                <span class="logo-text">Tech_Gen</span>
+            </a>
+            
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+              <ul class="nav-links">                            
+                <li class="dropdown">
+                    <a href="javascript:void(0)" class="dropbtn"><i class="fas fa-tools"></i> All Tools</a>
+                    <div class="dropdown-content">
+                        <div class="dropdown-columns">
+                            <div class="dropdown-column">
+                                <h4>Image Tools</h4>
+                                <a href="/tools/img-compression.html"><i class="fas fa-compress-alt"></i> Image Compressor</a>
+                                <a href="/tools/ImageResizer.html"><i class="fas fa-expand"></i> Image Resizer</a>
+                                <a href="/tools/imgtopdf.html"><i class="fas fa-file-pdf"></i> Image to PDF</a>
+                            </div>
+                            
+                            <div class="dropdown-column">
+                                <h4>PDF Tools</h4>
+                                <a href="/tools/pdf-merger.html"><i class="fas fa-object-group"></i> PDF Merger</a>
+                                <a href="/tools/PDFSplitter.html"><i class="fas fa-cut"></i> PDF Splitter</a>
+                                <a href="/tools/pdfremovepages.html"><i class="fas fa-minus-circle"></i> PDF Page Remove</a>
+                                <a href="/tools/pdforaganise.html"><i class="fas fa-sort-amount-down"></i> PDF Organizer</a>
+                            </div>
+                            
+                            <div class="dropdown-column">
+                                <h4>Converters</h4>
+                                <a href="/tools/pdftojpg.html"><i class="fas fa-file-image"></i> PDF to JPG</a>
+                                <a href="/tools/pdftoword.html"><i class="fas fa-file-word"></i> PDF to Word</a>
+                                <a href="/tools/pdftoexcel.html"><i class="fas fa-file-excel"></i> PDF to Excel</a>
+                                <a href="/tools/WordtoPDF.html"><i class="fas fa-file-export"></i> Word to PDF</a>
+                                <a href="/tools/ExceltoPDF.html"><i class="fas fa-file-export"></i> Excel to PDF</a>
+                            </div>
+                            
+                            <div class="dropdown-column">
+                                <h4>Other Tools</h4>
+                                <a href="/tools/Translate.html"><i class="fas fa-language"></i> Document Translator</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                
+                </ul>
+        </div>
+    </nav>        
         <li><a href="/about.html"><i class="fas fa-info-circle"></i> About</a></li>
         <li><a href="/contact.html"><i class="fas fa-envelope"></i> Contact</a></li>
         <li><a href="/blog.html"><i class="fas fa-blog"></i> Blog</a></li>
@@ -589,15 +641,7 @@
         </div>
       </div>
     </section>
-
-    <!-- Features Section -->
-    <section class="features">
-      <div class="section-title">
-        <h2>Why Choose Our Tools?</h2>
-      </div>
-      
-    </section>
-
+   
     <!-- Ad Section -->
     <div class="ad-section">
       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1893797822419017"crossorigin="anonymous"></script>
@@ -718,6 +762,7 @@
           <p>All our tools are completely free to use with no hidden charges.</p>
         </div>
       </div>
+  
 
   <!-- Footer -->
   <footer>
@@ -727,54 +772,21 @@
       
       <div class="footer-links">
         <a href="/">Home</a>
-        <a href="/tools.html">Tools</a>
+        <a href="/tools/alltools.html">Tools</a>
         <a href="/about.html">About</a>
         <a href="/contact.html">Contact</a>
         <a href="/blog.html">Blog</a>
         <a href="/privacy.html">Privacy Policy</a>
-        <a href="/terms.html">Terms of Service</a>
-      </div>
+        </div>
       
       <div class="social-links">
-        <a href="#" aria-label="Facebook"><i class="fab fa-facebook" aria-hidden="true"></i></a>
+        <a href="https://www.facebook.com/" aria-label="Facebook"><i class="fab fa-facebook" aria-hidden="true"></i></a>
         <a href="https://x.com/home" aria-label="Twitter"><i class="fab fa-twitter" aria-hidden="true"></i></a>
-        <a href="#" aria-label="Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
-        <a href="#" aria-label="GitHub"><i class="fab fa-github" aria-hidden="true"></i></a>
-      </div>
+        <a href="https://www.youtube.com/@manjeshsharma" aria-label="Youtube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
+        </div>
       
       <p>&copy; <span id="current-year">2025</span> Tech_Gen Online Tools. All rights reserved.</p>
     </div>
   </footer>
-
-  <script>
-    // Update copyright year automatically
-    document.getElementById('current-year').textContent = new Date().getFullYear();
-    
-    // Mobile menu toggle
-    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-    const navLinks = document.querySelector('.nav-links');
-    
-    mobileMenuBtn.addEventListener('click', () => {
-      navLinks.classList.toggle('active');
-      mobileMenuBtn.innerHTML = navLinks.classList.contains('active') 
-        ? '<i class="fas fa-times"></i>' 
-        : '<i class="fas fa-bars"></i>';
-    });
-    
-    // Close mobile menu when clicking on a link
-    document.querySelectorAll('.nav-links a').forEach(link => {
-      link.addEventListener('click', () => {
-        navLinks.classList.remove('active');
-        mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
-      });
-    });
-    
-    // Load AdSense after page load
-    document.addEventListener('DOMContentLoaded', function() {
-      if (typeof adsbygoogle !== 'undefined') {
-        adsbygoogle = window.adsbygoogle || []).push({});
-      }
-    });
-  </script>
 </body>
 </html>
