@@ -133,6 +133,74 @@
       border-radius: 50%;
     }
 
+    /* Dropdown Menu */
+    .dropdown {
+      position: relative;
+    }
+
+    .dropbtn {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: white;
+      min-width: 800px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+      border-radius: 16px;
+      padding: 1.5rem;
+      z-index: 1000;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 10px;
+    }
+
+    .dropdown-columns {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .dropdown-column {
+      flex: 1;
+    }
+
+    .dropdown-column h4 {
+      color: var(--primary);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--light-gray);
+    }
+
+    .dropdown-content a {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem;
+      color: var(--dark);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border-radius: 8px;
+      margin-bottom: 0.25rem;
+    }
+
+    .dropdown-content a:hover {
+      background: rgba(108, 92, 231, 0.1);
+      color: var(--primary);
+    }
+
+    .dropdown-content a i {
+      width: 20px;
+      text-align: center;
+      margin-right: 8px;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
     .mobile-menu-btn {
       display: none;
       background: none;
@@ -474,7 +542,7 @@
     }
 
     /* Mobile Menu */
-    @media (max-width: 768px) {
+    @media (max-width: 992px) {
       .nav-links {
         position: fixed;
         top: 70px;
@@ -483,22 +551,53 @@
         height: calc(100vh - 70px);
         background: white;
         flex-direction: column;
-        align-items: center;
-        padding: 2rem 0;
+        align-items: flex-start;
+        padding: 2rem;
         transition: left 0.3s ease;
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
       }
 
       .nav-links.active {
         left: 0;
       }
 
-      .nav-links a {
-        padding: 1rem;
+      .dropdown-content {
+        position: static;
+        transform: none;
+        min-width: 100%;
+        box-shadow: none;
+        padding: 1rem 0 0 1rem;
+        display: none;
+      }
+
+      .dropdown-columns {
+        flex-direction: column;
+        gap: 0;
+      }
+
+      .dropdown.active .dropdown-content {
+        display: block;
       }
 
       .mobile-menu-btn {
         display: block;
+      }
+
+      .dropdown .dropbtn::after {
+        content: '\f078';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        margin-left: auto;
+        transition: transform 0.3s ease;
+      }
+
+      .dropdown.active .dropbtn::after {
+        transform: rotate(180deg);
+      }
+
+      .nav-links a {
+        width: 100%;
       }
 
       .tool-grid {
@@ -527,350 +626,50 @@
       </button>
       
       <ul class="nav-links">
-        <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tech_Gen Tools Navigation</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #6c5ce7;
-            --primary-dark: #5649c0;
-            --secondary: #a29bfe;
-            --accent: #fd79a8;
-            --dark: #2d3436;
-            --light: #f5f6fa;
-            --text-light: #f8f9fa;
-            --text-dark: #212529;
-            --gray: #6c757d;
-            --light-gray: #e9ecef;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            background: var(--light);
-            color: var(--dark);
-        }
-
-        /* Navigation */
-        .navbar {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            padding: 0 2rem;
-        }
-
-        .nav-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 70px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-
-        .logo-icon {
-            font-size: 1.8rem;
-            color: var(--primary);
-            background: linear-gradient(to right, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .logo-text {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--dark);
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 1.5rem;
-            list-style: none;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: var(--dark);
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .nav-links a:hover {
-            color: var(--primary);
-        }
-
-        .nav-links a.active {
-            color: var(--primary);
-            background: rgba(108, 92, 231, 0.1);
-        }
-
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--dark);
-            cursor: pointer;
-        }
-
-        /* Dropdown Menu */
-        .dropdown {
-            position: relative;
-        }
-
-        .dropbtn {
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: white;
-            min-width: 800px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-            border-radius: 16px;
-            padding: 1.5rem;
-            z-index: 1000;
-            left: 50%;
-            transform: translateX(-50%);
-            margin-top: 10px;
-        }
-
-        .dropdown-columns {
-            display: flex;
-            gap: 1.5rem;
-        }
-
-        .dropdown-column {
-            flex: 1;
-        }
-
-        .dropdown-column h4 {
-            color: var(--primary);
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--light-gray);
-        }
-
-        .dropdown-content a {
-            display: flex;
-            align-items: center;
-            padding: 0.5rem;
-            color: var(--dark);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border-radius: 8px;
-            margin-bottom: 0.25rem;
-        }
-
-        .dropdown-content a:hover {
-            background: rgba(108, 92, 231, 0.1);
-            color: var(--primary);
-        }
-
-        .dropdown-content a i {
-            width: 20px;
-            text-align: center;
-            margin-right: 8px;
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-
-        /* Mobile Menu */
-        @media (max-width: 992px) {
-            .nav-links {
-                position: fixed;
-                top: 70px;
-                left: -100%;
-                width: 100%;
-                height: calc(100vh - 70px);
-                background: white;
-                flex-direction: column;
-                align-items: flex-start;
-                padding: 2rem;
-                transition: left 0.3s ease;
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-                overflow-y: auto;
-            }
-
-            .nav-links.active {
-                left: 0;
-            }
-
-            .dropdown-content {
-                position: static;
-                transform: none;
-                min-width: 100%;
-                box-shadow: none;
-                padding: 1rem 0 0 1rem;
-                display: none;
-            }
-
-            .dropdown-columns {
-                flex-direction: column;
-                gap: 0;
-            }
-
-            .dropdown.active .dropdown-content {
-                display: block;
-            }
-
-            .mobile-menu-btn {
-                display: block;
-            }
-
-            .dropdown .dropbtn::after {
-                content: '\f078';
-                font-family: 'Font Awesome 6 Free';
-                font-weight: 900;
-                margin-left: auto;
-                transition: transform 0.3s ease;
-            }
-
-            .dropdown.active .dropbtn::after {
-                transform: rotate(180deg);
-            }
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="/" class="logo">
-                <span class="logo-icon">
-                    <i class="fas fa-tools"></i>
-                </span>
-                <span class="logo-text">Tech_Gen</span>
-            </a>
-            
-            <button class="mobile-menu-btn" aria-label="Toggle menu">
-                <i class="fas fa-bars"></i>
-            </button>
-            
-            <ul class="nav-links">
-                <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
-                
-                <li class="dropdown">
-                    <a href="javascript:void(0)" class="dropbtn"><i class="fas fa-tools"></i> All Tools</a>
-                    <div class="dropdown-content">
-                        <div class="dropdown-columns">
-                            <div class="dropdown-column">
-                                <h4>Image Tools</h4>
-                                <a href="/tools/img-compression.html"><i class="fas fa-compress-alt"></i> Image Compressor</a>
-                                <a href="/tools/ImageResizer.html"><i class="fas fa-expand"></i> Image Resizer</a>
-                                <a href="/tools/imgtopdf.html"><i class="fas fa-file-pdf"></i> Image to PDF</a>
-                            </div>
-                            
-                            <div class="dropdown-column">
-                                <h4>PDF Tools</h4>
-                                <a href="/tools/pdf-merger.html"><i class="fas fa-object-group"></i> PDF Merger</a>
-                                <a href="/tools/PDFSplitter.html"><i class="fas fa-cut"></i> PDF Splitter</a>
-                                <a href="/tools/pdfremovepages.html"><i class="fas fa-minus-circle"></i> PDF Page Remove</a>
-                                <a href="/tools/pdforaganise.html"><i class="fas fa-sort-amount-down"></i> PDF Organizer</a>
-                            </div>
-                            
-                            <div class="dropdown-column">
-                                <h4>Converters</h4>
-                                <a href="/tools/pdftojpg.html"><i class="fas fa-file-image"></i> PDF to JPG</a>
-                                <a href="/tools/pdftoword.html"><i class="fas fa-file-word"></i> PDF to Word</a>
-                                <a href="/tools/pdftoexcel.html"><i class="fas fa-file-excel"></i> PDF to Excel</a>
-                                <a href="/tools/WordtoPDF.html"><i class="fas fa-file-export"></i> Word to PDF</a>
-                                <a href="/tools/ExceltoPDF.html"><i class="fas fa-file-export"></i> Excel to PDF</a>
-                            </div>
-                            
-                            <div class="dropdown-column">
-                                <h4>Other Tools</h4>
-                                <a href="/tools/Translate.html"><i class="fas fa-language"></i> Document Translator</a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-                
-                <li><a href="/about.html"><i class="fas fa-info-circle"></i> About</a></li>
-                <li><a href="/contact.html"><i class="fas fa-envelope"></i> Contact</a></li>
-                <li><a href="/blog.html"><i class="fas fa-blog"></i> Blog</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <script>
-        // Mobile menu toggle
-        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-        const navLinks = document.querySelector('.nav-links');
+        <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
         
-        mobileMenuBtn.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-            mobileMenuBtn.innerHTML = navLinks.classList.contains('active') 
-                ? '<i class="fas fa-times"></i>' 
-                : '<i class="fas fa-bars"></i>';
-        });
+        <li class="dropdown">
+          <a href="javascript:void(0)" class="dropbtn"><i class="fas fa-tools"></i> All Tools</a>
+          <div class="dropdown-content">
+            <div class="dropdown-columns">
+              <div class="dropdown-column">
+                <h4>Image Tools</h4>
+                <a href="/tools/img-compression.html"><i class="fas fa-compress-alt"></i> Image Compressor</a>
+                <a href="/tools/ImageResizer.html"><i class="fas fa-expand"></i> Image Resizer</a>
+                <a href="/tools/imgtopdf.html"><i class="fas fa-file-pdf"></i> Image to PDF</a>
+              </div>
+              
+              <div class="dropdown-column">
+                <h4>PDF Tools</h4>
+                <a href="/tools/pdf-merger.html"><i class="fas fa-object-group"></i> PDF Merger</a>
+                <a href="/tools/PDFSplitter.html"><i class="fas fa-cut"></i> PDF Splitter</a>
+                <a href="/tools/pdfremovepages.html"><i class="fas fa-minus-circle"></i> PDF Page Remove</a>
+                <a href="/tools/pdforaganise.html"><i class="fas fa-sort-amount-down"></i> PDF Organizer</a>
+              </div>
+              
+              <div class="dropdown-column">
+                <h4>Converters</h4>
+                <a href="/tools/pdftojpg.html"><i class="fas fa-file-image"></i> PDF to JPG</a>
+                <a href="/tools/pdftoword.html"><i class="fas fa-file-word"></i> PDF to Word</a>
+                <a href="/tools/pdftoexcel.html"><i class="fas fa-file-excel"></i> PDF to Excel</a>
+                <a href="/tools/WordtoPDF.html"><i class="fas fa-file-export"></i> Word to PDF</a>
+                <a href="/tools/ExceltoPDF.html"><i class="fas fa-file-export"></i> Excel to PDF</a>
+              </div>
+              
+              <div class="dropdown-column">
+                <h4>Other Tools</h4>
+                <a href="/tools/Translate.html"><i class="fas fa-language"></i> Document Translator</a>
+              </div>
+            </div>
+          </div>
+        </li>
         
-        // Mobile dropdown functionality
-        document.querySelectorAll('.dropdown .dropbtn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                if (window.innerWidth <= 992) {
-                    e.preventDefault();
-                    const dropdown = this.parentElement;
-                    dropdown.classList.toggle('active');
-                    
-                    // Close other dropdowns
-                    document.querySelectorAll('.dropdown').forEach(d => {
-                        if (d !== dropdown) d.classList.remove('active');
-                    });
-                }
-            });
-        });
-        
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.dropdown') && window.innerWidth <= 992) {
-                document.querySelectorAll('.dropdown').forEach(dropdown => {
-                    dropdown.classList.remove('active');
-                });
-            }
-        });
-        
-        // Close mobile menu when clicking on a link (except dropdown toggle)
-        document.querySelectorAll('.nav-links a:not(.dropbtn)').forEach(link => {
-            link.addEventListener('click', () => {
-                if (window.innerWidth <= 992) {
-                    navLinks.classList.remove('active');
-                    mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+        <li><a href="/about.html"><i class="fas fa-info-circle"></i> About</a></li>
+        <li><a href="/contact.html"><i class="fas fa-envelope"></i> Contact</a></li>
+        <li><a href="/blog.html"><i class="fas fa-blog"></i> Blog</a></li>
+      </ul>
+    </div>
+  </nav>
 
   <!-- Header -->
   <header>
@@ -925,20 +724,52 @@
         </div>
       </div>
     </section>
-   
+
+    <!-- Features Section -->
+    <section class="features">
+      <div class="section-title">
+        <h2>Why Choose Our Tools?</h2>
+      </div>
+      
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-bolt"></i>
+          </div>
+          <h3>Lightning Fast</h3>
+          <p>Our tools process your files in seconds, saving you valuable time.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-lock"></i>
+          </div>
+          <h3>Secure Processing</h3>
+          <p>Your files are processed in your browser and never uploaded to our servers.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+          <h3>100% Free</h3>
+          <p>All our tools are completely free to use with no hidden charges.</p>
+        </div>
+      </div>
+    </section>
+
     <!-- Ad Section -->
     <div class="ad-section">
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1893797822419017"crossorigin="anonymous"></script>
-<!-- bottom1 -->
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-1893797822419017"
-     data-ad-slot="9634673201"
-     data-ad-format="auto"
-     data-full-width-responsive="true"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1893797822419017" crossorigin="anonymous"></script>
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-1893797822419017"
+           data-ad-slot="5436817012"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
     </div>
 
     <!-- All Tools Section -->
@@ -1021,33 +852,6 @@
     </section>
   </main>
 
-  <div class="feature-grid">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-bolt"></i>
-          </div>
-          <h3>Lightning Fast</h3>
-          <p>Our tools process your files in seconds, saving you valuable time.</p>
-        </div>
-        
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-lock"></i>
-          </div>
-          <h3>Secure Processing</h3>
-          <p>Your files are processed in your browser and never uploaded to our servers.</p>
-        </div>
-        
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-dollar-sign"></i>
-          </div>
-          <h3>100% Free</h3>
-          <p>All our tools are completely free to use with no hidden charges.</p>
-        </div>
-      </div>
-  
-
   <!-- Footer -->
   <footer>
     <div class="footer-content">
@@ -1056,21 +860,80 @@
       
       <div class="footer-links">
         <a href="/">Home</a>
-        <a href="/tools/alltools.html">Tools</a>
+        <a href="/tools.html">Tools</a>
         <a href="/about.html">About</a>
         <a href="/contact.html">Contact</a>
         <a href="/blog.html">Blog</a>
         <a href="/privacy.html">Privacy Policy</a>
-        </div>
+        <a href="/terms.html">Terms of Service</a>
+      </div>
       
       <div class="social-links">
         <a href="https://www.facebook.com/" aria-label="Facebook"><i class="fab fa-facebook" aria-hidden="true"></i></a>
         <a href="https://x.com/home" aria-label="Twitter"><i class="fab fa-twitter" aria-hidden="true"></i></a>
-        <a href="https://www.youtube.com/@manjeshsharma" aria-label="Youtube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
-        </div>
+        <a href="https://www.youtube.com/@manjeshsharma" aria-label="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
+      </div>
       
       <p>&copy; <span id="current-year">2025</span> Tech_Gen Online Tools. All rights reserved.</p>
     </div>
   </footer>
+
+  <script>
+    // Update copyright year automatically
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+    
+    // Mobile menu toggle
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const navLinks = document.querySelector('.nav-links');
+    
+    mobileMenuBtn.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+      mobileMenuBtn.innerHTML = navLinks.classList.contains('active') 
+        ? '<i class="fas fa-times"></i>' 
+        : '<i class="fas fa-bars"></i>';
+    });
+    
+    // Mobile dropdown functionality
+    document.querySelectorAll('.dropdown .dropbtn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        if (window.innerWidth <= 992) {
+          e.preventDefault();
+          const dropdown = this.parentElement;
+          dropdown.classList.toggle('active');
+          
+          // Close other dropdowns
+          document.querySelectorAll('.dropdown').forEach(d => {
+            if (d !== dropdown) d.classList.remove('active');
+          });
+        }
+      });
+    });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.dropdown') && window.innerWidth <= 992) {
+        document.querySelectorAll('.dropdown').forEach(dropdown => {
+          dropdown.classList.remove('active');
+        });
+      }
+    });
+    
+    // Close mobile menu when clicking on a link (except dropdown toggle)
+    document.querySelectorAll('.nav-links a:not(.dropbtn)').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 992) {
+          navLinks.classList.remove('active');
+          mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+        }
+      });
+    });
+    
+    // Load AdSense after page load
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof adsbygoogle !== 'undefined') {
+        adsbygoogle = window.adsbygoogle || []).push({});
+      }
+    });
+  </script>
 </body>
 </html>
