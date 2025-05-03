@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Organize your PDF pages easily. Reorder, remove, and manage PDF pages online." />
+  <meta name="keywords" content="organize pdf, reorder pdf pages, remove pdf pages, edit pdf online" />
+  <meta name="author" content="Vishwakarmae-solution" />
+  <title>Organize PDF Online | Tech_Gen Tools</title>
+
+  <!-- Load pdf-lib -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --primary-dark: #5649c0;
+      --secondary: #00cec9;
+      --accent: #fd79a8;
+      --light: #f8f9fa;
+      --dark: #2d3436;
+      --gray: #636e72;
+      --light-gray: #dfe6e9;
+      --border-radius: 10px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: #f5f7ff;
+      color: var(--dark);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 2rem;
+      text-align: center;
+      border-radius: var(--border-radius);
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-md);
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: white;
+      padding: 2rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .upload-area {
+      border: 2px dashed var(--light-gray);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .upload-area:hover {
+      border-color: var(--primary);
+      background-color: rgba(108, 92, 231, 0.05);
+    }
+
+    .upload-icon {
+      font-size: 3rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .control-group {
+      margin-bottom: 1rem;
+    }
+
+    .control-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--dark);
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--light-gray);
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.8rem 1.5rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    button:disabled {
+      background: var(--light-gray);
+      color: var(--gray);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .download-btn {
+      display: none;
+      width: 100%;
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .ad-section {
+      margin: 3rem auto;
+      max-width: 700px;
+      text-align: center;
+      background: white;
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-sm);
+    }
+
+    footer {
+      margin-top: 4rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+
+    .pdf-preview {
+      margin-top: 2rem;
+      display: none;
+    }
+
+    .pdf-info {
+      background: var(--light);
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      margin-bottom: 1rem;
+    }
+
+    .page-thumbnails {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .page-thumbnail {
+      border: 1px solid var(--light-gray);
+      border-radius: 4px;
+      padding: 0.5rem;
+      text-align: center;
+      background: white;
+      cursor: move;
+    }
+
+    .page-thumbnail:hover {
+      border-color: var(--primary);
+    }
+
+    .page-number {
+      font-size: 0.8rem;
+      color: var(--gray);
+      margin-top: 0.3rem;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 1rem 0;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(108, 92, 231, 0.1);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 1.5rem;
+      }
+      
+      header {
+        padding: 1.5rem;
+      }
+      
+      h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Organize Your PDF</h1>
+    <p>Reorder, remove, and manage PDF pages with ease</p>
+  </header>
+
+  <div class="container">
+    <div id="uploadArea" class="upload-area">
+      <div class="upload-icon">
+        <i class="fas fa-file-pdf"></i>
+      </div>
+      <h3>Drag & Drop Your PDF Here</h3>
+      <p>or click to select a file</p>
+      <input type="file" id="pdf-upload" class="file-input" accept="application/pdf" />
+    </div>
+
+    <div id="pdfInfo" class="pdf-info" style="display: none;">
+      <div id="pdfDetails"></div>
+      <div class="page-thumbnails" id="pageThumbnails"></div>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label for="page-order">
+          <i class="fas fa-sort-numeric-down"></i> New Page Order
+          <small>(e.g., 2,1,3 or leave blank to keep original)</small>
+        </label>
+        <input type="text" id="page-order" placeholder="Example: 2,1,3" />
+      </div>
+
+      <div class="control-group">
+        <label for="remove-pages">
+          <i class="fas fa-trash-alt"></i> Pages to Remove
+          <small>(e.g., 4,5 or leave blank to keep all)</small>
+        </label>
+        <input type="text" id="remove-pages" placeholder="Example: 4,5" />
+      </div>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>Processing your PDF...</p>
+    </div>
+
+    <button id="organizeBtn" onclick="organizePdf()" disabled>
+      <i class="fas fa-magic"></i> Organize PDF
+    </button>
+
+    <a id="downloadBtn" class="download-btn" style="display: none;">
+      <i class="fas fa-download"></i> Download Organized PDF
+    </a>
+  </div>
+
+  <div class="ad-section">
+    <!-- Google AdSense Placeholder -->
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-app-pub-1893797822419017"
+         data-ad-slot="5436817012"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
+
+  <footer>
+    &copy; 2025 Tech_Gen Online Tools. All rights reserved.
+  </footer>
+
+  <script>
+    // DOM elements
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('pdf-upload');
+    const organizeBtn = document.getElementById('organizeBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const loadingDiv = document.getElementById('loading');
+    const pdfInfoDiv = document.getElementById('pdfInfo');
+    const pdfDetailsDiv = document.getElementById('pdfDetails');
+    const pageThumbnailsDiv = document.getElementById('pageThumbnails');
+
+    // Variables to store PDF data
+    let pdfFile = null;
+    let pageCount = 0;
+
+    // Event listeners
+    uploadArea.addEventListener('click', () => fileInput.click());
+    
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = 'var(--primary)';
+      uploadArea.style.backgroundColor = 'rgba(108, 92, 231, 0.1)';
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.style.borderColor = 'var(--light-gray)';
+      uploadArea.style.backgroundColor = 'transparent';
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = 'var(--light-gray)';
+      uploadArea.style.backgroundColor = 'transparent';
+      
+      if (e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        handleFileSelection(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length) {
+        handleFileSelection(fileInput.files[0]);
+      }
+    });
+
+    // Handle file selection
+    async function handleFileSelection(file) {
+      if (!file.type.includes('pdf')) {
+        alert('Please select a PDF file.');
+        return;
+      }
+
+      pdfFile = file;
+      organizeBtn.disabled = false;
+
+      // Show file info
+      uploadArea.innerHTML = `
+        <i class="fas fa-check-circle" style="color: var(--success); font-size: 3rem;"></i>
+        <h3>${file.name}</h3>
+        <p>${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+      `;
+
+      // Load PDF to get page count
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+        pageCount = pdfDoc.getPageCount();
+        
+        // Show PDF info
+        pdfDetailsDiv.innerHTML = `
+          <p><strong>Pages:</strong> ${pageCount}</p>
+          <p>Drag thumbnails below to reorder (coming soon)</p>
+        `;
+        
+        // Generate simple thumbnails (placeholder)
+        pageThumbnailsDiv.innerHTML = '';
+        for (let i = 0; i < pageCount; i++) {
+          const thumbnail = document.createElement('div');
+          thumbnail.className = 'page-thumbnail';
+          thumbnail.innerHTML = `
+            <i class="fas fa-file-alt" style="font-size: 1.5rem; color: var(--primary);"></i>
+            <div class="page-number">${i + 1}</div>
+          `;
+          thumbnail.draggable = true;
+          pageThumbnailsDiv.appendChild(thumbnail);
+        }
+        
+        pdfInfoDiv.style.display = 'block';
+      } catch (error) {
+        console.error('Error loading PDF:', error);
+        alert('Error loading PDF. Please try another file.');
+      }
+    }
+
+    // Main function to organize PDF
+    async function organizePdf() {
+      const orderInput = document.getElementById('page-order').value.trim();
+      const removeInput = document.getElementById('remove-pages').value.trim();
+
+      if (!pdfFile) {
+        alert('Please upload a PDF first.');
+        return;
+      }
+
+      // Show loading
+      loadingDiv.style.display = 'block';
+      organizeBtn.disabled = true;
+
+      try {
+        const arrayBuffer = await pdfFile.arrayBuffer();
+        const oldPdf = await PDFLib.PDFDocument.load(arrayBuffer);
+        const newPdf = await PDFLib.PDFDocument.create();
+        const totalPages = oldPdf.getPageCount();
+
+        // Process page order
+        let order = orderInput 
+          ? orderInput.split(',').map(n => parseInt(n.trim()) - 1)
+          : Array.from({ length: totalPages }, (_, i) => i);
+
+        // Process pages to remove
+        let remove = removeInput 
+          ? removeInput.split(',').map(n => parseInt(n.trim()) - 1)
+          : [];
+
+        // Validate inputs
+        if (order.some(page => page < 0 || page >= totalPages || isNaN(page))) {
+          throw new Error('Invalid page numbers in order field');
+        }
+
+        if (remove.some(page => page < 0 || page >= totalPages || isNaN(page))) {
+          throw new Error('Invalid page numbers in remove field');
+        }
+
+        // Copy pages according to new order and removal
+        for (let idx of order) {
+          if (idx >= 0 && idx < totalPages && !remove.includes(idx)) {
+            const [copiedPage] = await newPdf.copyPages(oldPdf, [idx]);
+            newPdf.addPage(copiedPage);
+          }
+        }
+
+        // Save the new PDF
+        const newPdfBytes = await newPdf.save();
+        const blob = new Blob([newPdfBytes], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+
+        // Show download button
+        downloadBtn.href = url;
+        downloadBtn.download = pdfFile.name.replace('.pdf', '') + '_organized.pdf';
+        downloadBtn.style.display = 'inline-flex';
+        downloadBtn.innerHTML = `<i class="fas fa-download"></i> Download Organized PDF (${(blob.size / 1024 / 1024).toFixed(2)} MB)`;
+        
+      } catch (error) {
+        console.error('Error organizing PDF:', error);
+        alert(`Error: ${error.message || 'Failed to organize PDF'}`);
+      } finally {
+        loadingDiv.style.display = 'none';
+        organizeBtn.disabled = false;
+      }
+    }
+  </script>
+
+  <!-- Load AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2273117553145364"
+     crossorigin="anonymous"></script>
+</body>
+</html>

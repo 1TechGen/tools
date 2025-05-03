@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Translation Tool</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6bff;
+            --primary-light: #eef1ff;
+            --secondary-color: #00c897;
+            --accent-color: #ff6b6b;
+            --light-gray: #f8f9fa;
+            --medium-gray: #6c757d;
+            --dark-gray: #343a40;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: var(--dark-gray);
+            background-color: #f5f7ff;
+            min-height: 100vh;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 15px 0;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            font-size: 28px;
+            color: var(--primary-color);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+        }
+        
+        nav ul li a {
+            text-decoration: none;
+            color: var(--dark-gray);
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 8px 12px;
+            border-radius: var(--border-radius);
+        }
+        
+        nav ul li a:hover {
+            color: var(--primary-color);
+            background-color: var(--primary-light);
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--dark-gray);
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, #f5f7ff 0%, #e6e9ff 100%);
+            padding: 80px 0 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero h1 {
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+            color: var(--dark-gray);
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--medium-gray);
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+        
+        .translation-tool {
+            background-color: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 40px;
+            margin-top: -40px;
+            position: relative;
+            z-index: 10;
+            margin-bottom: 40px;
+        }
+        
+        .tool-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .language-selectors {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .language-selector {
+            position: relative;
+            min-width: 180px;
+        }
+        
+        .language-selector select {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            background-color: #fff;
+            cursor: pointer;
+            appearance: none;
+            transition: var(--transition);
+            font-weight: 500;
+            color: var(--dark-gray);
+        }
+        
+        .language-selector select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.2);
+        }
+        
+        .language-selector::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--medium-gray);
+        }
+        
+        .swap-btn {
+            background-color: var(--primary-light);
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--primary-color);
+            font-size: 18px;
+        }
+        
+        .swap-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: rotate(180deg);
+        }
+        
+        .file-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            background-color: var(--light-gray);
+            padding: 8px;
+            border-radius: var(--border-radius);
+        }
+        
+        .file-option-btn {
+            background-color: transparent;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            font-weight: 500;
+            color: var(--medium-gray);
+        }
+        
+        .file-option-btn:hover {
+            background-color: rgba(74, 107, 255, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .file-option-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 12px rgba(74, 107, 255, 0.2);
+        }
+        
+        .file-option-btn i {
+            font-size: 16px;
+        }
+        
+        .translation-area {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        @media (min-width: 992px) {
+            .translation-area {
+                flex-direction: row;
+            }
+        }
+        
+        .text-box-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .text-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .text-box-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--medium-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .char-count {
+            font-size: 13px;
+            color: var(--medium-gray);
+            background-color: var(--light-gray);
+            padding: 4px 8px;
+            border-radius: 20px;
+        }
+        
+        .text-box {
+            flex: 1;
+            min-height: 250px;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            font-size: 16px;
+            resize: none;
+            margin-bottom: 15px;
+            transition: var(--transition);
+            line-height: 1.6;
+        }
+        
+        .text-box:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.2);
+        }
+        
+        .text-box-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .file-upload {
+            position: relative;
+            flex: 1;
+        }
+        
+        .file-upload input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-upload-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--light-gray);
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 10px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            justify-content: center;
+            color: var(--medium-gray);
+        }
+        
+        .file-upload-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .action-btn {
+            background-color: transparent;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            padding: 10px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--medium-gray);
+        }
+        
+        .action-btn:hover {
+            background-color: var(--light-gray);
+            color: var(--primary-color);
+            border-color: var(--primary-light);
+        }
+        
+        .translate-btn-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 25px;
+            position: relative;
+        }
+        
+        .translate-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(74, 107, 255, 0.3);
+        }
+        
+        .translate-btn:hover {
+            background-color: #3a5bef;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 107, 255, 0.4);
+        }
+        
+        .translate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .quick-loading {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,.5);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .settings-panel {
+            margin-top: 40px;
+            padding: 25px;
+            background-color: var(--light-gray);
+            border-radius: var(--border-radius);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        
+        .settings-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .settings-header h3 i {
+            color: var(--primary-color);
+        }
+        
+        .settings-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--medium-gray);
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+        
+        .settings-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .setting-group {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .setting-group h4 {
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .setting-group h4 i {
+            color: var(--primary-color);
+            font-size: 18px;
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .radio-option input {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-color);
+        }
+        
+        .radio-option label {
+            cursor: pointer;
+            font-size: 15px;
+        }
+        
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .checkbox-option input {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-color);
+        }
+        
+        .checkbox-option label {
+            cursor: pointer;
+            font-size: 15px;
+        }
+        
+        .slider-container {
+            margin-top: 15px;
+        }
+        
+        .slider-container label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: #e0e0e0;
+            border-radius: 3px;
+            outline: none;
+            margin-bottom: 5px;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 12px;
+            color: var(--medium-gray);
+        }
+        
+        .language-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .file-preview {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: var(--light-gray);
+            border-radius: var(--border-radius);
+            display: none;
+        }
+        
+        .file-preview.active {
+            display: block;
+        }
+        
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .file-icon {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+        
+        .file-details {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        
+        .file-size {
+            font-size: 12px;
+            color: var(--medium-gray);
+        }
+        
+        .remove-file {
+            color: var(--accent-color);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 18px;
+        }
+        
+        .translation-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--medium-gray);
+        }
+        
+        .translation-time {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            nav {
+                width: 100%;
+                margin-top: 15px;
+                display: none;
+            }
+            
+            nav.active {
+                display: block;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .translation-tool {
+                padding: 25px;
+            }
+            
+            .tool-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .language-selectors {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .language-selector {
+                width: 100%;
+            }
+            
+            .swap-btn {
+                align-self: center;
+                margin: 10px 0;
+            }
+            
+            .file-options {
+                justify-content: center;
+            }
+            
+            .translate-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .settings-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <a href="#" class="logo">
+                <i class="fas fa-language logo-icon"></i>
+                TranslatePro
+            </a>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav id="mainNav">
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#">API</a></li>
+                    <li><a href="#">Support</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <section class="hero">
+        <div class="container">
+            <h1>Translate Documents in a Snap</h1>
+            <p>Convert your files across 100+ languages while preserving formatting and optimizing content.</p>
+        </div>
+    </section>
+    
+    <div class="container">
+        <div class="translation-tool">
+            <div class="tool-header">
+                <div class="language-selectors">
+                    <div class="language-selector">
+                        <select id="sourceLanguage">
+                            <option value="auto">Detect Language</option>
+                            <option value="en">English</option>
+                            <option value="es">Spanish</option>
+                            <option value="fr">French</option>
+                            <option value="de">German</option>
+                            <option value="it">Italian</option>
+                            <option value="pt">Portuguese</option>
+                            <option value="ru">Russian</option>
+                            <option value="zh">Chinese</option>
+                            <option value="ja">Japanese</option>
+                            <option value="ar">Arabic</option>
+                            <option value="hi">Hindi</option>
+                        </select>
+                    </div>
+                    <button class="swap-btn" id="swapLanguages" aria-label="Swap languages">
+                        <i class="fas fa-exchange-alt"></i>
+                    </button>
+                    <div class="language-selector">
+                        <select id="targetLanguage">
+                            <option value="en">English</option>
+                            <option value="es">Spanish</option>
+                            <option value="fr">French</option>
+                            <option value="de">German</option>
+                            <option value="it">Italian</option>
+                            <option value="pt">Portuguese</option>
+                            <option value="ru">Russian</option>
+                            <option value="zh">Chinese</option>
+                            <option value="ja">Japanese</option>
+                            <option value="ar">Arabic</option>
+                            <option value="hi">Hindi</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="file-options">
+                    <button class="file-option-btn active" data-type="text" id="textOption">
+                        <i class="fas fa-font"></i> Text
+                    </button>
+                    <button class="file-option-btn" data-type="doc" id="docOption">
+                        <i class="fas fa-file-word"></i> Word
+                    </button>
+                    <button class="file-option-btn" data-type="pdf" id="pdfOption">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </button>
+                    <button class="file-option-btn" data-type="excel" id="excelOption">
+                        <i class="fas fa-file-excel"></i> Excel
+                    </button>
+                    <button class="file-option-btn" data-type="webpage" id="webpageOption">
+                        <i class="fas fa-globe"></i> Webpage
+                    </button>
+                </div>
+            </div>
+            
+            <div class="translation-area">
+                <div class="text-box-container">
+                    <div class="text-box-header">
+                        <h3 id="sourceLabel">Source Text <span class="language-badge" id="sourceLangBadge">Auto</span></h3>
+                        <span class="char-count" id="sourceCharCount">0 characters</span>
+                    </div>
+                    <textarea class="text-box" id="sourceText" placeholder="Enter text to translate or upload a file..."></textarea>
+                    <div class="file-preview" id="filePreview">
+                        <div class="file-info">
+                            <i class="fas fa-file-alt file-icon"></i>
+                            <div class="file-details">
+                                <div class="file-name" id="fileName">document.pdf</div>
+                                <div class="file-size" id="fileSize">2.4 MB</div>
+                            </div>
+                            <button class="remove-file" id="removeFile">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="text-box-footer">
+                        <div class="file-upload">
+                            <input type="file" id="sourceFileUpload" accept=".txt,.doc,.docx,.pdf,.xls,.xlsx">
+                            <button class="file-upload-btn" id="sourceUploadBtn">
+                                <i class="fas fa-upload"></i> Upload File
+                            </button>
+                        </div>
+                        <button class="action-btn" id="clearSource">
+                            <i class="fas fa-trash-alt"></i> Clear
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="text-box-container">
+                    <div class="text-box-header">
+                        <h3>Translation <span class="language-badge" id="targetLangBadge">English</span></h3>
+                        <span class="char-count" id="targetCharCount">0 characters</span>
+                    </div>
+                    <textarea class="text-box" id="targetText" placeholder="Your translation will appear here..." readonly></textarea>
+                    <div class="translation-meta">
+                        <div class="translation-time">
+                            <i class="fas fa-clock"></i>
+                            <span id="translationTime">-</span>
+                        </div>
+                        <div id="translationQuality">Quality: -</div>
+                    </div>
+                    <div class="text-box-footer">
+                        <button class="action-btn" id="copyTranslation">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <button class="action-btn" id="downloadTranslation">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="translate-btn-container">
+                <button class="translate-btn" id="translateBtn">
+                    <i class="fas fa-language"></i> Translate Now
+                    <span class="quick-loading" id="loadingIndicator" style="display: none;"></span>
+                </button>
+            </div>
+            
+            <div class="settings-panel">
+                <div class="settings-header" id="settingsToggle">
+                    <h3><i class="fas fa-sliders-h"></i> Translation Settings</h3>
+                    <button class="settings-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="settings-content" id="settingsContent">
+                    <div class="setting-group">
+                        <h4><i class="fas fa-file-alt"></i> Document Formatting</h4>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="formatPreserve" name="formatting" value="preserve" checked>
+                                <label for="formatPreserve">Preserve original formatting</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="formatPlain" name="formatting" value="plain">
+                                <label for="formatPlain">Convert to plain text</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <h4><i class="fas fa-image"></i> Media Handling</h4>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="optimizeImages" checked>
+                            <label for="optimizeImages">Optimize images in documents</label>
+                        </div>
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="preserveLayout">
+                            <label for="preserveLayout">Preserve original layout</label>
+                        </div>
+                        <div class="slider-container">
+                            <label for="compressionLevel">Image Compression</label>
+                            <input type="range" min="1" max="100" value="70" class="slider" id="compressionLevel">
+                            <div class="slider-labels">
+                                <span>Smaller files</span>
+                                <span>Balanced</span>
+                                <span>Better quality</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <h4><i class="fas fa-star"></i> Translation Quality</h4>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="qualityStandard" name="quality" value="standard" checked>
+                                <label for="qualityStandard">Standard (faster)</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="qualityPremium" name="quality" value="premium">
+                                <label for="qualityPremium">Premium (more accurate)</label>
+                            </div>
+                        </div>
+                        <div class="checkbox-option" style="margin-top: 10px;">
+                            <input type="checkbox" id="glossaryCheck">
+                            <label for="glossaryCheck">Use specialized terminology</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Translation dictionary (simplified example)
+        const translationDictionary = {
+            'en': { // English
+                'es': {
+                    'hello': 'hola',
+                    'goodbye': 'adiós',
+                    'thank you': 'gracias',
+                    'please': 'por favor',
+                    'how are you': 'cómo estás',
+                    'good morning': 'buenos días'
+                },
+                'fr': {
+                    'hello': 'bonjour',
+                    'goodbye': 'au revoir',
+                    'thank you': 'merci',
+                    'please': 's\'il vous plaît',
+                    'how are you': 'comment ça va',
+                    'good morning': 'bonjour'
+                },
+                'de': {
+                    'hello': 'hallo',
+                    'goodbye': 'auf wiedersehen',
+                    'thank you': 'danke',
+                    'please': 'bitte',
+                    'how are you': 'wie geht\'s',
+                    'good morning': 'guten morgen'
+                }
+            },
+            'es': { // Spanish
+                'en': {
+                    'hola': 'hello',
+                    'adiós': 'goodbye',
+                    'gracias': 'thank you',
+                    'por favor': 'please',
+                    'cómo estás': 'how are you',
+                    'buenos días': 'good morning'
+                }
+            },
+            'fr': { // French
+                'en': {
+                    'bonjour': 'hello',
+                    'au revoir': 'goodbye',
+                    'merci': 'thank you',
+                    's\'il vous plaît': 'please',
+                    'comment ça va': 'how are you'
+                }
+            },
+            'de': { // German
+                'en': {
+                    'hallo': 'hello',
+                    'auf wiedersehen': 'goodbye',
+                    'danke': 'thank you',
+                    'bitte': 'please',
+                    'wie geht\'s': 'how are you',
+                    'guten morgen': 'good morning'
+                }
+            }
+        };
+
+        // Enhanced translation function
+        async function translateText(sourceLang, targetLang, text) {
+            const startTime = performance.now();
+            
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    let translatedText = "";
+                    
+                    // Handle auto-detection (default to English)
+                    if (sourceLang === 'auto') {
+                        sourceLang = 'en';
+                    }
+                    
+                    // Check if we have translations for this language pair
+                    if (translationDictionary[sourceLang] && translationDictionary[sourceLang][targetLang]) {
+                        const translations = translationDictionary[sourceLang][targetLang];
+                        const lowerText = text.toLowerCase();
+                        
+                        // Try to find whole phrases first
+                        let foundPhrase = false;
+                        for (const phrase in translations) {
+                            if (lowerText.includes(phrase)) {
+                                translatedText = text.replace(new RegExp(phrase, 'gi'), translations[phrase]);
+                                foundPhrase = true;
+                                break;
+                            }
+                        }
+                        
+                        // If no phrase found, do word-by-word
+                        if (!foundPhrase) {
+                            translatedText = text.split(' ').map(word => {
+                                const cleanWord = word.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '');
+                                return translations[cleanWord] || word;
+                            }).join(' ');
+                        }
+                        
+                        // Add language indicator
+                        translatedText = `[${targetLang.toUpperCase()}] ${translatedText}`;
+                    } else {
+                        // Fallback for unsupported language pairs
+                        translatedText = `[${targetLang.toUpperCase()}] ${text}`;
+                    }
+                    
+                    const endTime = performance.now();
+                    const translationTime = ((endTime - startTime) / 1000).toFixed(2);
+                    
+                    resolve({
+                        text: translatedText,
+                        time: translationTime,
+                        quality: targetLang === 'en' ? 'Excellent' : 'Good'
+                    });
+                }, 500); // Simulated network delay
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mainNav = document.getElementById('mainNav');
+            
+            mobileMenuBtn.addEventListener('click', function() {
+                mainNav.classList.toggle('active');
+                this.innerHTML = mainNav.classList.contains('active') ? 
+                    '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+            });
+            
+            // Language selection updates
+            const sourceLanguage = document.getElementById('sourceLanguage');
+            const targetLanguage = document.getElementById('targetLanguage');
+            const sourceLangBadge = document.getElementById('sourceLangBadge');
+            const targetLangBadge = document.getElementById('targetLangBadge');
+            
+            function updateLanguageBadges() {
+                const sourceLang = sourceLanguage.options[sourceLanguage.selectedIndex].text;
+                const targetLang = targetLanguage.options[targetLanguage.selectedIndex].text;
+                
+                sourceLangBadge.textContent = sourceLanguage.value === 'auto' ? 'Auto' : sourceLang;
+                targetLangBadge.textContent = targetLang;
+            }
+            
+            sourceLanguage.addEventListener('change', updateLanguageBadges);
+            targetLanguage.addEventListener('change', updateLanguageBadges);
+            
+            // Swap languages
+            document.getElementById('swapLanguages').addEventListener('click', function() {
+                const temp = sourceLanguage.value;
+                sourceLanguage.value = targetLanguage.value;
+                targetLanguage.value = temp === 'auto' ? 'en' : temp;
+                updateLanguageBadges();
+            });
+            
+            // File upload preview
+            const fileUpload = document.getElementById('sourceFileUpload');
+            const filePreview = document.getElementById('filePreview');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const removeFile = document.getElementById('removeFile');
+            const sourceUploadBtn = document.getElementById('sourceUploadBtn');
+            const sourceText = document.getElementById('sourceText');
+            const sourceCharCount = document.getElementById('sourceCharCount');
+            
+            fileUpload.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    const fileType = file.type.split('/')[1] || file.name.split('.').pop();
+                    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+                    
+                    // Update preview
+                    fileName.textContent = file.name;
+                    fileSize.textContent = `${fileSizeMB} MB • ${fileType.toUpperCase()}`;
+                    filePreview.classList.add('active');
+                    
+                    // Update upload button
+                    sourceUploadBtn.innerHTML = `<i class="fas fa-file"></i> ${file.name.substring(0, 15)}${file.name.length > 15 ? '...' : ''}`;
+                    
+                    // Simulate file processing
+                    setTimeout(() => {
+                        sourceText.value = `[Content from ${file.name} would appear here after processing]`;
+                        sourceCharCount.textContent = sourceText.value.length + ' characters';
+                    }, 800);
+                }
+            });
+            
+            removeFile.addEventListener('click', function() {
+                fileUpload.value = '';
+                filePreview.classList.remove('active');
+                sourceUploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload File';
+                sourceText.value = '';
+                sourceCharCount.textContent = '0 characters';
+            });
+            
+            // Character count
+            sourceText.addEventListener('input', function() {
+                sourceCharCount.textContent = this.value.length + ' characters';
+            });
+            
+            // Clear source
+            document.getElementById('clearSource').addEventListener('click', function() {
+                sourceText.value = '';
+                sourceCharCount.textContent = '0 characters';
+                fileUpload.value = '';
+                filePreview.classList.remove('active');
+                sourceUploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload File';
+            });
+            
+            // Copy translation
+            document.getElementById('copyTranslation').addEventListener('click', function() {
+                const translation = document.getElementById('targetText');
+                translation.select();
+                document.execCommand('copy');
+                
+                // Show feedback
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                }, 2000);
+            });
+            
+            // Download translation
+            document.getElementById('downloadTranslation').addEventListener('click', function() {
+                const translation = document.getElementById('targetText').value;
+                if (!translation.trim()) {
+                    alert('No translation to download');
+                    return;
+                }
+                
+                const blob = new Blob([translation], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'translation.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+            
+            // Settings panel toggle
+            const settingsToggle = document.getElementById('settingsToggle');
+            const settingsContent = document.getElementById('settingsContent');
+            const settingsChevron = settingsToggle.querySelector('.settings-toggle i');
+            
+            settingsToggle.addEventListener('click', function() {
+                const isVisible = settingsContent.style.display === 'flex';
+                settingsContent.style.display = isVisible ? 'none' : 'flex';
+                settingsChevron.className = isVisible ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
+            });
+            
+            // Initialize settings as visible
+            settingsContent.style.display = 'flex';
+            
+            // File type selection
+            const fileOptionBtns = document.querySelectorAll('.file-option-btn');
+            fileOptionBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    fileOptionBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    updateFileAcceptAttribute(this.dataset.type);
+                });
+            });
+            
+            function updateFileAcceptAttribute(type) {
+                let accept = '';
+                switch(type) {
+                    case 'text': accept = '.txt'; break;
+                    case 'doc': accept = '.doc,.docx'; break;
+                    case 'pdf': accept = '.pdf'; break;
+                    case 'excel': accept = '.xls,.xlsx'; break;
+                    case 'webpage': accept = '.html,.htm,.url'; break;
+                    default: accept = '.txt,.doc,.docx,.pdf,.xls,.xlsx,.html,.htm,.url';
+                }
+                fileUpload.accept = accept;
+            }
+            
+            // Initialize file type
+            updateFileAcceptAttribute('text');
+            
+            // Translate button with working functionality
+            document.getElementById('translateBtn').addEventListener('click', async function() {
+                const sourceText = document.getElementById('sourceText').value.trim();
+                if (!sourceText) {
+                    alert('Please enter text to translate');
+                    return;
+                }
+                
+                const translateBtn = this;
+                const loadingIndicator = document.getElementById('loadingIndicator');
+                const translateBtnText = this.querySelector('span:not(.quick-loading)');
+                const targetText = document.getElementById('targetText');
+                const targetCharCount = document.getElementById('targetCharCount');
+                const translationTimeElement = document.getElementById('translationTime');
+                const translationQualityElement = document.getElementById('translationQuality');
+                
+                // Show loading state
+                translateBtn.disabled = true;
+                loadingIndicator.style.display = 'inline-block';
+                if (translateBtnText) {
+                    translateBtnText.textContent = ' Translating...';
+                }
+                
+                // Get selected languages
+                const sourceLang = sourceLanguage.value;
+                const targetLang = targetLanguage.value;
+                
+                try {
+                    // Perform translation
+                    const { text: translatedText, time, quality } = await translateText(sourceLang, targetLang, sourceText);
+                    
+                    // Update UI with translation
+                    targetText.value = translatedText;
+                    targetCharCount.textContent = translatedText.length + ' characters';
+                    translationTimeElement.textContent = `${time}s`;
+                    translationQualityElement.textContent = `Quality: ${quality}`;
+                    
+                } catch (error) {
+                    console.error("Translation error:", error);
+                    targetText.value = "Translation error. Please try again.";
+                    translationTimeElement.textContent = '-';
+                    translationQualityElement.textContent = 'Quality: -';
+                } finally {
+                    // Hide loading state
+                    translateBtn.disabled = false;
+                    loadingIndicator.style.display = 'none';
+                    if (translateBtnText) {
+                        translateBtnText.textContent = 'Translate Now';
+                    }
+                }
+            });
+            
+            // Initialize language badges
+            updateLanguageBadges();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Convert PDF pages to JPG images easily online for free." />
+  <meta name="keywords" content="pdf to jpg, convert pdf, pdf to image, free online converter" />
+  <meta name="author" content="Vishwakarmae-solution" />
+  <title>PDF to JPG Converter | Tech_Gen Tools</title>
+
+  <!-- Load pdf.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background: #f0f4f8;
+      padding: 2rem;
+      color: #333;
+    }
+    header {
+      background: linear-gradient(to right, #667eea, #764ba2);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    input, button, select {
+      width: 100%;
+      margin: 1rem 0;
+      padding: 0.8rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #5a67d8;
+    }
+    .options {
+      display: flex;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .option-group {
+      flex: 1;
+      text-align: left;
+    }
+    .option-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    .ad-section {
+      margin: 3rem 0;
+      text-align: center;
+    }
+    #images {
+      margin-top: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .image-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    #images img {
+      max-width: 200px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .download-btn {
+      background: #4CAF50;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: background 0.3s;
+    }
+    .download-btn:hover {
+      background: #3e8e41;
+    }
+    footer {
+      margin-top: 4rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #666;
+    }
+    .loading {
+      margin: 1rem 0;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>PDF to JPG Converter</h1>
+    <p>Convert your PDF pages into JPG images easily.</p>
+  </header>
+
+  <div class="container">
+    <input type="file" id="pdf-upload" accept="application/pdf" />
+    
+    <div class="options">
+      <div class="option-group">
+        <label for="resolution">Resolution Quality</label>
+        <select id="resolution">
+          <option value="1">Low (72 DPI)</option>
+          <option value="1.5" selected>Medium (150 DPI)</option>
+          <option value="2">High (300 DPI)</option>
+          <option value="3">Very High (600 DPI)</option>
+        </select>
+      </div>
+      
+      <div class="option-group">
+        <label for="quality">JPG Quality</label>
+        <select id="quality">
+          <option value="0.7">Good (70%)</option>
+          <option value="0.8" selected>Better (80%)</option>
+          <option value="0.9">Best (90%)</option>
+          <option value="1.0">Maximum (100%)</option>
+        </select>
+      </div>
+    </div>
+    
+    <button onclick="convertPdfToImages()">Convert PDF to JPG</button>
+    <div id="loading" class="loading">Processing PDF pages...</div>
+    <div id="images"></div>
+  </div>
+
+  <div class="ad-section">
+    <!-- Google AdSense Placeholder -->
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-app-pub-1893797822419017"
+         data-ad-slot="5436817012"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
+
+  <footer>
+    &copy; 2025 Tech_Gen Online Tools. All rights reserved.
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    async function convertPdfToImages() {
+      const fileInput = document.getElementById('pdf-upload');
+      const imagesDiv = document.getElementById('images');
+      const loadingDiv = document.getElementById('loading');
+      const resolution = parseFloat(document.getElementById('resolution').value);
+      const quality = parseFloat(document.getElementById('quality').value);
+      
+      imagesDiv.innerHTML = '';
+      loadingDiv.style.display = 'block';
+
+      if (!fileInput.files.length) {
+        alert('Please upload a PDF.');
+        loadingDiv.style.display = 'none';
+        return;
+      }
+
+      try {
+        const file = fileInput.files[0];
+        const fileReader = new FileReader();
+        
+        fileReader.onload = async function() {
+          try {
+            const typedarray = new Uint8Array(this.result);
+            const pdf = await pdfjsLib.getDocument(typedarray).promise;
+
+            for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+              const page = await pdf.getPage(pageNumber);
+              const viewport = page.getViewport({ scale: resolution });
+              const canvas = document.createElement('canvas');
+              const context = canvas.getContext('2d');
+              canvas.height = viewport.height;
+              canvas.width = viewport.width;
+
+              await page.render({ 
+                canvasContext: context, 
+                viewport: viewport 
+              }).promise;
+
+              // Create image container
+              const container = document.createElement('div');
+              container.className = 'image-container';
+              
+              // Create preview image
+              const img = document.createElement('img');
+              img.src = canvas.toDataURL('image/jpeg', quality);
+              img.alt = `Page ${pageNumber}`;
+              
+              // Create download button
+              const downloadBtn = document.createElement('a');
+              downloadBtn.href = canvas.toDataURL('image/jpeg', quality);
+              downloadBtn.download = `page-${pageNumber}-${resolution}x.jpg`;
+              downloadBtn.textContent = `Download Page ${pageNumber}`;
+              downloadBtn.className = 'download-btn';
+              
+              // Add resolution info
+              const info = document.createElement('div');
+              info.textContent = `${canvas.width}×${canvas.height} pixels`;
+              info.style.fontSize = '0.8rem';
+              info.style.color = '#666';
+              
+              container.appendChild(img);
+              container.appendChild(info);
+              container.appendChild(downloadBtn);
+              imagesDiv.appendChild(container);
+            }
+          } catch (error) {
+            console.error('Error processing PDF:', error);
+            alert('Error processing PDF: ' + error.message);
+          } finally {
+            loadingDiv.style.display = 'none';
+          }
+        };
+        
+        fileReader.readAsArrayBuffer(file);
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred: ' + error.message);
+        loadingDiv.style.display = 'none';
+      }
+    }
+  </script>
+
+  <!-- Load AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1893797822419017"
+     crossorigin="anonymous"></script>
+
+</body>
+</html>
